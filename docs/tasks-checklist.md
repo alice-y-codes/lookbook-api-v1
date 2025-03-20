@@ -91,27 +91,30 @@ This document outlines an iterative approach to developing the Lookbook API, wit
     - [x] Query building
   - [x] Tests: Repository implementation tests
 
-#### Web (To be implemented)
+#### Web
 
-- [ ] Base Controller
-  - [ ] `BaseController`
-    - [ ] Common request/response handling
-    - [ ] Error translation
-    - [ ] Authentication integration
-  - [ ] Tests: Controller behavior tests
+- [x] Base Controller
+  - [x] `BaseController`
+    - [x] Common request/response handling
+    - [x] Error translation
+    - [x] Authentication integration
+  - [x] Tests: Controller behavior tests
+  - [x] Implementation plan created
 
-- [ ] Exception Handler
-  - [ ] `GlobalExceptionHandler`
-    - [ ] Domain exception translation
-    - [ ] HTTP status mapping
-    - [ ] Response formatting
-  - [ ] Tests: Exception handling tests
+- [x] Exception Handler
+  - [x] `GlobalExceptionHandler`
+    - [x] Domain exception translation
+    - [x] HTTP status mapping
+    - [x] Response formatting
+  - [x] Tests: Exception handling tests
+  - [x] Implementation plan created
 
-- [ ] Response Models
-  - [ ] `ApiResponse<T>`
-  - [ ] `ErrorResponse`
-  - [ ] `ValidationErrorResponse`
-  - [ ] Tests: Response model tests
+- [x] Response Models
+  - [x] `ApiResponse<T>`
+  - [x] `ErrorResponse`
+  - [x] `ValidationErrorResponse`
+  - [x] Tests: Response model tests
+  - [x] Implementation plan created
 
 #### Security (To be implemented)
 
