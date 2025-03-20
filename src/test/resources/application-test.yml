@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  test:
+    database:
+      replace: none
+
+logging:
+  level:
+    root: INFO
+    com.lookbook: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+security:
+  jwt:
+    secret-key: test-secret-key-for-jwt-authentication-must-be-at-least-256-bits-long
+    expiration: 86400000  # 24 hours in milliseconds
+    refresh-token:
+      expiration: 604800000  # 7 days in milliseconds
+
+# Test-specific feature flags and configuration
+lookbook:
+  features:
+    email-verification: false  # Disable email verification in tests
+    moderation: false  # Disable content moderation in tests
+  test:
+    seed-data: true  # Automatically seed test data 
