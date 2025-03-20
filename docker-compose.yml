@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database
+  postgres:
+    image: postgres:16-alpine
+    container_name: lookbook-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: lookbook
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - lookbook-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and pub/sub
+  redis:
+    image: redis:7-alpine
+    container_name: lookbook-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - lookbook-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MinIO for S3-compatible object storage
+  minio:
+    image: minio/minio:latest
+    container_name: lookbook-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio-data:/data
+    command: server --console-address ":9001" /data
+    networks:
+      - lookbook-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # Create the bucket on startup
+  create-bucket:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    networks:
+      - lookbook-network
+    entrypoint: >
+      /bin/sh -c " until /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin; do
+        echo 'Waiting for MinIO to start...'
+        sleep 1
+      done; /usr/bin/mc mb myminio/lookbook || true; /usr/bin/mc policy set public myminio/lookbook; exit 0; "
+
+networks:
+  lookbook-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:
