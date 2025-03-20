@@ -1,631 +1,819 @@
-# Lookbook API: Comprehensive Implementation Plan
+# Lookbook API: Comprehensive Iterative Implementation Plan
 
-This document outlines the implementation plan for the Lookbook API, structured in phases that align with the MVP progression.
+This document outlines an iterative approach to developing the Lookbook API, with each iteration delivering usable functionality while maintaining technical depth.
 
 ## Development Approach
 
 - **Test-Driven Development**: Write tests before implementing features
 - **Domain-Driven Design**: Focus on the core domain model and business logic
 - **Hexagonal Architecture**: Isolate the domain from external concerns
-- **Iterative Development**: Deliver incremental value in defined phases
+- **Iterative Development**: Deliver working features in short iterations
 
-## Implementation Phases
+## Core Infrastructure (Applied Throughout)
 
-### Phase 1: Core User Features (Weeks 1-4)
+### Domain Layer Base Components
 
-#### Objectives
-- Set up the project infrastructure and development environment
-- Implement core infrastructure classes and utilities
-- Implement the core domain model
-- Develop the authentication and user management system
+- [x] `BaseEntity` abstract class
+  - [x] Path: `com.lookbook.base.domain.entities.BaseEntity`
+  - [x] UUID-based entity identity
+  - [x] Creation/modification timestamps
+  - [x] Equality based on identity
+  - [x] Tests: `BaseEntityTest`
 
-#### Tasks Checklist
+- [x] `BaseValueObject` abstract class
+  - [x] Path: `com.lookbook.base.domain.valueobjects.BaseValueObject`
+  - [x] Immutability enforcement
+  - [x] Value-based equality
+  - [x] Self-validation integration
+  - [x] Tests: `BaseValueObjectTest`
 
-##### Project Setup
-- [] Set up project structure with hexagonal architecture
-  - [x] Create directory structure for domain-driven design
-  - [x] Set up package organization according to hexagonal architecture
-  - [x] Establish separation of domain, application, and infrastructure layers
-  - [x] Set up resources directory structure
+- [x] Domain Events
+  - [x] `DomainEvent` interface
+    - [x] Path: `com.lookbook.base.domain.events.DomainEvent`
+    - [x] Event ID and timestamp properties
+    - [x] Event type and metadata
+  - [x] `BaseDomainEvent` implementation
+    - [x] Path: `com.lookbook.base.domain.events.BaseDomainEvent`
+    - [x] Immutable event properties
+    - [x] Metadata handling
+  - [x] Tests: `BaseDomainEventTest`
+
+- [x] Domain Exceptions
+  - [x] `DomainException` abstract class
+    - [x] Path: `com.lookbook.base.domain.exceptions.DomainException`
+    - [x] Error code management
+    - [x] Message formatting
+  - [x] Common exception types
+    - [x] `ValidationException`: For invariant violations
+    - [x] `EntityNotFoundException`: For missing entities
+    - [x] `DuplicateEntityException`: For uniqueness violations
+  - [x] Tests: Exception test cases
+
+- [x] Validation Framework
+  - [x] `ValidationResult` class
+    - [x] Path: `com.lookbook.base.domain.validation.ValidationResult`
+    - [x] Error collection and reporting
+    - [x] Validation result combination
+  - [x] `SelfValidating` interface
+    - [x] Path: `com.lookbook.base.domain.validation.SelfValidating`
+    - [x] Contract for self-validating objects
+  - [x] Tests: Validation utilities tests
+
+### Application Layer Base Components
+
+#### Application Ports (To be implemented)
+
+- [x] Repository Interfaces
+  - [x] `BaseRepository` interface
+    - [x] CRUD operations
+    - [x] Query specifications
+  - [x] Specific repository interfaces
+    - [x] `EntityRepository`
+    - [x] `ReadOnlyRepository`
+  - [x] Tests: Repository contract tests
+
+- [ ] Service Interfaces
+  - [ ] External system interfaces
+    - [ ] `FileStorageService`
+    - [ ] `EmailService`
+    - [ ] `NotificationService`
+  - [ ] Tests: Service contract tests
+
+
+### Infrastructure Layer Base Components
+
+#### Persistence
+
+- [x] Repository Implementations
+  - [x] `BaseRepositoryImpl`
+    - [x] Implementation of `BaseRepository`
+    - [x] Transaction handling
+    - [x] Query building
+  - [x] Tests: Repository implementation tests
+
+#### Web (To be implemented)
+
+- [ ] Base Controller
+  - [ ] `BaseController`
+    - [ ] Common request/response handling
+    - [ ] Error translation
+    - [ ] Authentication integration
+  - [ ] Tests: Controller behavior tests
+
+- [ ] Exception Handler
+  - [ ] `GlobalExceptionHandler`
+    - [ ] Domain exception translation
+    - [ ] HTTP status mapping
+    - [ ] Response formatting
+  - [ ] Tests: Exception handling tests
+
+- [ ] Response Models
+  - [ ] `ApiResponse<T>`
+  - [ ] `ErrorResponse`
+  - [ ] `ValidationErrorResponse`
+  - [ ] Tests: Response model tests
+
+#### Security (To be implemented)
+
+- [ ] Authentication Components
+  - [ ] JWT utilities
+  - [ ] Security configuration
+  - [ ] Tests: Security tests
+
+## MVP Iterations
+
+### MVP 0: Project Foundation (1 week)
+
+#### Deliverable
+A working application skeleton with CI/CD pipeline and development environment
+
+#### Tasks
+- [x] Set up project structure with hexagonal architecture
+  - [x] Create directory structure based on DDD
+  - [x] Set up package organization for domain, application, infrastructure
+  - [x] Establish layer isolation
+  - [x] Set up resources directory
 
 - [x] Configure Maven dependencies
-  - [] Set up Spring Boot starter dependencies
-  - [x] Add JPA dependencies
-  - [x] Add Security dependencies
+  - [x] Set up Spring Boot starter dependencies
+  - [x] Add validation dependencies
+  - [x] Add security dependencies
   - [x] Configure build plugins
 
-- [x] Create development environment configuration
-  - [x] Configure development profile
-  - [x] Set up environment-specific properties
-  - [x] Configure logging
+- [ ] Create development environment configuration
+  - [ ] Configure application properties
+  - [ ] Set up environment-specific properties
+  - [ ] Configure logging
 
 - [x] Set up Docker Compose for local development
   - [x] Create Docker Compose file for database
   - [x] Configure database environment variables
   - [x] Set up network configuration
 
-- [x] Create basic application documentation
-  - [x] Document architecture and design decisions
-  - [x] Create README with setup instructions
-  - [x] Document project structure
-
 - [x] Configure testing framework
-  - [x] Create test folder structure matching hexagonal architecture
-  - [x] Add JUnit and Mockito dependencies
-  - [x] Configure test containers for integration tests
-  - [x] Set up test profiles and properties
-  - [x] Create helper classes for common test operations
+  - [x] Create test folder structure
+  - [x] Add JUnit, Mockito, TestContainers dependencies
+  - [ ] Configure test properties
+  - [ ] Set up test profiles
 
 - [x] Set up Git repository with branching strategy
   - [x] Initialize Git repository
-  - [x] Configure .gitignore file
+  - [x] Configure .gitignore
   - [x] Define branch naming convention
-  - [x] Document workflow for feature branches and pull requests
 
-- [x ] Configure CI/CD pipeline (GitHub Actions)
-  - [ x] Set up build workflow
-  - [ ] Configure test execution in CI
-  - [ ] Set up code coverage reporting
-  - [ ] Implement code quality checks
+- [ ] Configure CI/CD pipeline
+  - [ ] Create GitHub Actions workflow
+  - [ ] Set up testing with JUnit
+  - [ ] Configure code quality checks
 
-- [ ] Define ubiquitous language and create glossary of domain terms
-  - [ ] Conduct domain modeling sessions
-  - [ ] Document key domain concepts
-  - [ ] Create glossary of terms with clear definitions
-  - [ ] Ensure consistent naming across codebase
+- [ ] Create basic application documentation
+  - [ ] Document architecture
+  - [ ] Create README with setup instructions
+  - [ ] Document project structure
 
-##### Core Infrastructure Classes
+- [x] Implement core shared domain components
+  - [x] Create `BaseEntity` with identity and timestamps
+  - [x] Implement `BaseValueObject` with validation
+  - [x] Add `DomainEvent` interface and base implementation
+  - [x] Create domain exception hierarchy
+  - [x] Implement validation utilities
+  - [x] Write tests for base components
 
-- [] Shared Domain Components
-  - [] Create BaseEntity with common attributes (id, timestamps)
-    - [] Implement entity identity
-    - [] Add created/updated timestamps
-    - [] Implement equality methods
-  - [] Create BaseValueObject with equality abstractions
-    - [] Implement value object equality
-    - [] Add validation methods
-  - [] Create DomainEvent interface and base implementation
-    - [] Define event structure
-    - [] Implement timestamp and correlation ID
-  - [] Implement common domain exceptions
-    - [] Create base domain exception
-    - [] Implement specific exception types
-    - [] Add error codes
+### MVP 1: User Authentication (2 weeks)
 
-- [] Testing Infrastructure
-  - [] Create test folder structure matching hexagonal architecture
-    - [] Set up test directories for domain layer
-    - [] Set up test directories for application layer
-    - [] Set up test directories for infrastructure layer
-    - [] Create integration test structure
-  - [] Create BaseRepositoryTest for database testing
-    - [] Implement test database setup
-    - [] Create transaction management for tests
-    - [] Set up data cleanup between tests
-  - [] Create BaseControllerTest for API testing
-    - [] Set up MockMvc configuration
-    - [] Create authentication utilities for tests
-    - [] Implement common assertions
-  - [] Set up test containers configuration
-    - [] Configure database container
-    - [] Set up container lifecycle management
-    - [] Create reusable container configurations
-  - [] Create test fixtures and data generators
-    - [] Implement TestDataGenerator utility
-    - [] Create value object generators
-    - [] Set up randomized test data utilities
-  - [] Implement test utilities for authentication
-    - [] Create test user factory
-    - [] Implement token generation for tests
-    - [] Set up security context manipulation
-  - [] Create domain entity factory classes for tests
-    - [] Implement BaseEntityFactory
-    - [] Create UserEntityFactory
-    - [] Create UserProfileEntityFactory
-  - [] Create domain value object test builders
-    - [] Implement BaseValueObjectBuilder
-    - [] Create EmailBuilder
-    - [] Create PasswordBuilder
-    - [] Create UsernameBuilder
-  - [] Implement JPA entity factory classes for repository tests
-    - [] Create BaseJpaEntity
-    - [] Create UserJpaEntityFactory
-    - [] Create UserProfileJpaEntityFactory
-  - [] Set up mock configuration for service tests
-    - [] Create mock repository configurations
-    - [] Set up mock service dependencies
-    - [] Implement common verification patterns
+#### Deliverable
+Users can register, log in, and receive JWT tokens
 
-- [] Application Core
-  - [] Create BaseUseCase interface
-    - [] Define input/output ports
-    - [] Implement execution context
-  - [] Create BaseApplicationService
-    - [] Implement transaction management
-    - [] Add logging
-    - [] Set up exception handling
-  - [] Implement common validation utilities
-    - [] Create validation framework
-    - [] Implement reusable validators
-    - [] Add validation exception handling
-  - [] Create generic response wrapper DTOs
-    - [] Implement success response wrapper
-    - [] Add metadata support
-    - [] Create pagination wrapper
-  - [] Create error response DTOs
-    - [] Implement error response structure
-    - [] Add error code mapping
-    - [] Create validation error response
+#### Domain Layer
+- [ ] Define user domain model
+  - [ ] `User` aggregate root
+    - [ ] Path: `com.lookbook.user.domain.model.User`
+    - [ ] Fields: id, username, email, password, status, createdAt, updatedAt
+    - [ ] Methods: register, activate, deactivate, changePassword
+    - [ ] Invariants: email format, password strength, username format
+    - [ ] Tests: User entity tests
 
-- [] Infrastructure Core
-  - [] Create BaseJpaEntity with common attributes
-    - [] Implement JPA mappings for base fields
-    - [] Add audit information
-    - [] Set up optimistic locking
-  - [] Implement BaseMapper interface
-    - [] Define mapping methods
-    - [] Create base implementation
-    - [] Add collection mapping support
-  - [] Create BaseRepositoryAdapter
-    - [x] Implement repository pattern
-    - [] Add common query methods
-    - [] Create transaction handling
-  - [] Implement common specification patterns
-    - [] Create base specification class
-    - [] Implement composable specifications
-    - [] Add predicate builders
-  - [] Create BaseController with shared functionality
-    - [] Implement response formatting
-    - [] Add common request validation
-    - [] Create pagination support
-  - [] Set up global exception handler
-    - [] Implement exception to response mapping
-    - [] Add specific handlers for common exceptions
-    - [] Create consistent error response format
-  - [] Create security utilities (current user access, etc.)
-    - [] Implement current user context
-    - [] Add permission checking utilities
-    - [] Create security annotations
-  - [] Implement request/response logging
-    - [] Add request logging filter
-    - [] Implement sensitive data masking
-    - [] Create performance logging
+  - [ ] Value objects
+    - [ ] `Email` value object
+      - [ ] Path: `com.lookbook.user.domain.model.Email`
+      - [ ] Validation: format, length, domain
+      - [ ] Tests: Email validation tests
+    - [ ] `Password` value object
+      - [ ] Path: `com.lookbook.user.domain.model.Password`
+      - [ ] Hashing and strength validation
+      - [ ] Tests: Password hashing and validation tests
+    - [ ] `Username` value object
+      - [ ] Path: `com.lookbook.user.domain.model.Username`
+      - [ ] Format validation
+      - [ ] Tests: Username validation tests
 
-##### User Domain
-- [ ] Write tests for User domain entities and value objects
-  - [ ] Test user entity creation and validation
-  - [] Test user value objects (email)
-  - [ ] Test password value object
-  - [ ] Test username value object
-  - [ ] Test user state transitions
-  - [ ] Test domain rules and invariants
+  - [ ] Enums and constants
+    - [ ] `UserStatus` enum
+      - [ ] Path: `com.lookbook.user.domain.model.UserStatus`
+      - [ ] Values: ACTIVE, INACTIVE, PENDING
+      - [ ] Tests: Status transition tests
 
-- [ ] Implement User domain model
-  - [ ] Create User aggregate root
-  - [] Implement Email value object
-  - [ ] Create Password value object with hashing
-  - [ ] Implement Username value object
-  - [ ] Add domain events for user lifecycle
+  - [ ] Domain events
+    - [ ] `UserRegisteredEvent`
+    - [ ] `UserActivatedEvent`
+    - [ ] `PasswordChangedEvent`
+    - [ ] Tests: Event property tests
 
-- [ ] Write tests for user profile entity and operations
-  - [ ] Test profile creation and association with user
-  - [ ] Test profile update operations
-  - [ ] Test profile image management
-  - [ ] Test profile validation rules
+  - [ ] Repository interfaces (ports)
+    - [ ] `UserRepository` interface
+      - [ ] Path: `com.lookbook.user.application.ports.repositories.UserRepository`
+      - [ ] Methods: findById, findByEmail, findByUsername, save, delete
+      - [ ] Tests: Repository contract tests
 
-- [ ] Implement user profile domain model
-  - [ ] Create UserProfile entity
-  - [ ] Implement ProfileImage value object
-  - [ ] Add profile information value objects
-  - [ ] Create profile update operations
+#### Application Layer
+- [ ] Authentication application services
+  - [ ] `JwtService` interface
+    - [ ] Path: `com.lookbook.auth.application.ports.services.JwtService`
+    - [ ] Methods: generateToken, validateToken, refreshToken, extractClaims
+    - [ ] Tests: JWT service tests
 
-- [ ] Write tests for privacy settings
-  - [ ] Test privacy setting creation and validation
-  - [ ] Test permission evaluation
-  - [ ] Test privacy changes and effects
-  - [ ] Test default privacy settings
+  - [ ] `AuthenticationService`
+    - [ ] Path: `com.lookbook.auth.application.services.AuthenticationService`
+    - [ ] Methods: register, login, refreshToken, resetPassword
+    - [ ] Tests: Authentication flow tests
 
-- [ ] Implement privacy settings for user accounts
-  - [ ] Create PrivacySettings entity
-  - [ ] Implement VisibilityLevel value object
-  - [ ] Add permission evaluation logic
-  - [ ] Create privacy setting operations
+  - [ ] `UserService`
+    - [ ] Path: `com.lookbook.user.application.services.UserService`
+    - [ ] Methods: createUser, updateUser, activateUser, deactivateUser
+    - [ ] Tests: User management tests
 
-##### Authentication Domain
-- [ ] Write tests for Authentication domain
-  - [ ] Test authentication requests
-  - [ ] Test credential validation
-  - [ ] Test authentication failures
-  - [ ] Test session management
+- [ ] DTOs
+  - [ ] Request DTOs
+    - [ ] Path: `com.lookbook.auth.application.dto.request.*`
+    - [ ] RegisterUserRequest, LoginRequest, TokenRefreshRequest
+    - [ ] Tests: Request validation tests
 
-- [ ] Implement Authentication domain model
-  - [ ] Create Authentication entity
-  - [ ] Implement Credentials value object
-  - [ ] Add AuthenticationResult value object
-  - [ ] Create authentication domain services
+  - [ ] Response DTOs
+    - [ ] Path: `com.lookbook.auth.application.dto.response.*`
+    - [ ] UserResponse, AuthenticationResponse, TokenRefreshResponse
+    - [ ] Tests: Response formatting tests
 
-- x] Write tests for user registration flow
-  - [] Test registration request validation
-  - [] Test duplicate email/username handling
-  - [ ] Test successful registration flow
-  - [ ] Test confirmation process
+  - [ ] Mappers
+    - [ ] Path: `com.lookbook.user.application.mappers.*`
+    - [ ] UserMapper, AuthenticationMapper
+    - [ ] Tests: Mapping tests
 
-- [] Implement user registration service and validation
-  - [] Create RegistrationRequest value object
-  - [ ] Implement registration service
-  - [ ] Add validation rules
-  - [ ] Create registration confirmation process
+#### Infrastructure Layer
+- [ ] Security configuration
+  - [ ] Path: `com.lookbook.auth.infrastructure.security.*`
+  - [ ] Security config, JWT filter, authentication entry point
+  - [ ] Tests: Security configuration tests
 
-- [] Write tests for JWT authentication
-  - [ ] Test token generation
-  - [ ] Test token validation
-  - [ ] Test token refresh
-  - [ ] Test token revocation
+- [ ] Persistence adapters
+  - [ ] JPA entities
+    - [ ] Path: `com.lookbook.user.infrastructure.persistence.entities.*`
+    - [ ] UserJpaEntity and related entities
+    - [ ] Tests: JPA mapping tests
 
-- [] Implement JWT authentication service
-  - [] Create JWT generation service
-  - [] Implement token validation
-  - [] Add claims management
-  - [] Create security context integration
+  - [ ] JPA repositories
+    - [ ] Path: `com.lookbook.user.infrastructure.persistence.repositories.*`
+    - [ ] Spring Data interfaces
+    - [ ] Tests: Repository query tests
 
-- [ ] Write tests for refresh token mechanism
-  - [ ] Test refresh token creation
-  - [ ] Test refresh token usage
-  - [ ] Test token expiration
-  - [ ] Test token invalidation
+  - [ ] Repository adapters
+    - [ ] Path: `com.lookbook.user.infrastructure.persistence.adapters.*`
+    - [ ] Implementation of domain repository interfaces
+    - [ ] Tests: Adapter behavior tests
 
-- [ ] Implement refresh token service
-  - [ ] Create RefreshToken entity
-  - [ ] Implement token service
-  - [ ] Add expiration handling
-  - [ ] Create token rotation
+- [ ] JWT implementation
+  - [ ] Path: `com.lookbook.auth.infrastructure.security.*`
+  - [ ] JWT token generation, validation, refresh
+  - [ ] Tests: JWT lifecycle tests
 
-- [ ] Write tests for role-based authorization
-  - [ ] Test role assignment
-  - [ ] Test permission checking
-  - [ ] Test role hierarchy
-  - [ ] Test access control
+#### API Layer
+- [ ] REST controllers
+  - [ ] Path: `com.lookbook.auth.infrastructure.web.controllers.*`
+  - [ ] Authentication endpoints
+  - [ ] User endpoints
+  - [ ] Tests: Controller endpoint tests
 
-- [] Implement role-based authorization with Spring Security
-  - [] Create Role entity
-  - [] Implement Permission value object
-  - [] Add role assignments to users
-  - [] Create custom security expressions
+- [ ] Exception handling
+  - [ ] Path: `com.lookbook.auth.infrastructure.web.exceptions.*`
+  - [ ] Error response formatting
+  - [ ] Tests: Exception handling tests
 
-##### Friend Domain Foundation
-- [ ] Write tests for friend domain model
+#### Integration Tests
+- [ ] Authentication flow tests
+  - [ ] Registration and validation
+  - [ ] Login and token generation
+  - [ ] Token refresh
+  - [ ] Password reset
+
+### MVP 2: User Profiles (2 weeks)
+
+#### Deliverable
+Users can create and manage their profiles with profile images
+
+#### Domain Layer
+- [ ] Extend user domain model
+  - [ ] `UserProfile` entity
+    - [ ] Fields: id, userId, displayName, bio, location, profileImageUrl
+    - [ ] Methods: update, addProfileImage, removeProfileImage
+    - [ ] Tests for profile creation, modification, validation
+
+  - [ ] Value objects
+    - [ ] `ProfileImage` with metadata
+    - [ ] `DisplayName` with validation
+    - [ ] `Biography` with length validation
+    - [ ] Tests for value object validation
+
+  - [ ] Domain events
+    - [ ] `ProfileCreatedEvent`
+    - [ ] `ProfileUpdatedEvent`
+    - [ ] `ProfileImageChangedEvent`
+    - [ ] Tests for event creation and properties
+
+  - [ ] Domain repositories (ports)
+    - [ ] `ProfileRepository` interface
+      - [ ] Methods: findByUserId, save, delete
+    - [ ] `FileStorageRepository` interface
+      - [ ] Methods: storeFile, getFile, deleteFile
+    - [ ] Tests for repository contracts
+
+#### Application Layer
+- [ ] Profile application services
+  - [ ] `ProfileService`
+    - [ ] Methods: createProfile, updateProfile, getProfile, deleteProfile
+    - [ ] Business rule enforcement
+    - [ ] Tests for profile management
+
+  - [ ] `ProfileImageService`
+    - [ ] Methods: uploadImage, getImage, deleteImage
+    - [ ] Image processing and validation
+    - [ ] Tests for image operations
+
+- [ ] DTOs
+  - [ ] Request DTOs
+    - [ ] `CreateProfileRequest`: displayName, bio, location
+    - [ ] `UpdateProfileRequest`: displayName, bio, location
+    - [ ] Tests for DTO validation
+
+  - [ ] Response DTOs
+    - [ ] `ProfileResponse`: id, userId, displayName, bio, location, profileImageUrl
+    - [ ] Tests for DTO mapping
+
+  - [ ] Mappers
+    - [ ] `ProfileMapper`: Domain <-> DTO
+    - [ ] Tests for mapping behavior
+
+#### Infrastructure Layer
+- [ ] File storage
+  - [ ] `LocalFileStorageAdapter`: Store files on disk
+  - [ ] `S3FileStorageAdapter`: Store files in S3
+  - [ ] Tests for storage operations
+
+- [ ] Persistence adapters
+  - [ ] JPA entities
+    - [ ] `ProfileJpaEntity`: JPA mapping of profile
+    - [ ] Tests for entity mapping
+
+  - [ ] JPA repositories
+    - [ ] `ProfileJpaRepository`: Spring Data interface
+    - [ ] Tests for repository queries
+
+  - [ ] Repository adapters
+    - [ ] `ProfileRepositoryAdapter`: Implements domain repository
+    - [ ] Tests for adapter behavior
+
+- [ ] Image processing
+  - [ ] `ImageProcessingService`: Resize, crop, optimize images
+  - [ ] Tests for image processing
+
+#### API Layer
+- [ ] REST controllers
+  - [ ] `ProfileController`
+    - [ ] Endpoints: `/api/profiles/me`, `/api/profiles/{userId}`
+    - [ ] Authorization for profile operations
+    - [ ] Tests for controller endpoints
+
+  - [ ] `ProfileImageController`
+    - [ ] Endpoints: `/api/profiles/images`, `/api/profiles/images/{imageId}`
+    - [ ] Multipart file handling
+    - [ ] Tests for image upload/download
+
+#### Integration Tests
+- [ ] Profile management flow
+  - [ ] Test profile creation and validation
+  - [ ] Test profile update
+  - [ ] Test profile retrieval
+
+- [ ] Image handling
+  - [ ] Test image upload
+  - [ ] Test image retrieval
+  - [ ] Test image deletion
+
+### MVP 3: Friends and Connections (2 weeks)
+
+#### Deliverable
+Users can send/accept friend requests and view their connections
+
+#### Domain Layer
+- [ ] Friend relationship domain
+  - [ ] `FriendRelationship` entity
+    - [ ] Fields: id, requesterId, addresseeId, status, createdAt, updatedAt
+    - [ ] Methods: request, accept, reject, cancel, block
+    - [ ] Tests for relationship lifecycle
+
+  - [ ] Value objects
+    - [ ] `FriendshipStatus` enum (PENDING, ACCEPTED, REJECTED, BLOCKED)
+    - [ ] Tests for status transitions
+
+  - [ ] Domain events
+    - [ ] `FriendRequestSentEvent`
+    - [ ] `FriendRequestAcceptedEvent`
+    - [ ] `FriendRequestRejectedEvent`
+    - [ ] Tests for event creation and properties
+
+  - [ ] Domain repositories (ports)
+    - [ ] `FriendRepository` interface
+      - [ ] Methods: findByUser, findByUsers, findByStatus, save, delete
+    - [ ] Tests for repository contract
+
+  - [ ] Domain services
+    - [ ] `FriendshipDomainService`: Handle complex friendship operations
+    - [ ] Tests for domain service logic
+
+#### Application Layer
+- [ ] Friend application services
+  - [ ] `FriendshipService`
+    - [ ] Methods: sendRequest, acceptRequest, rejectRequest, cancelRequest, blockUser
+    - [ ] Business rule enforcement
+    - [ ] Tests for friendship operations
+
+  - [ ] `FriendQueryService`
+    - [ ] Methods: getFriends, getPendingRequests, getSentRequests
+    - [ ] Query optimization
+    - [ ] Tests for query operations
+
+- [ ] DTOs
+  - [ ] Request DTOs
+    - [ ] `FriendRequestDto`: addresseeId
+    - [ ] `FriendActionDto`: friendshipId, action
+    - [ ] Tests for DTO validation
+
+  - [ ] Response DTOs
+    - [ ] `FriendshipResponseDto`: id, requesterId, addresseeId, status, createdAt
+    - [ ] `FriendDto`: id, username, displayName, profileImageUrl
+    - [ ] Tests for DTO mapping
+
+  - [ ] Mappers
+    - [ ] `FriendshipMapper`: Domain <-> DTO
+    - [ ] Tests for mapping behavior
+
+#### Infrastructure Layer
+- [ ] Persistence adapters
+  - [ ] JPA entities
+    - [ ] `FriendshipJpaEntity`: JPA mapping of relationship
+    - [ ] Tests for entity mapping
+
+  - [ ] JPA repositories
+    - [ ] `FriendshipJpaRepository`: Spring Data interface
+    - [ ] Tests for repository queries
+
+  - [ ] Repository adapters
+    - [ ] `FriendRepositoryAdapter`: Implements domain repository
+    - [ ] Tests for adapter behavior
+
+- [ ] Friend suggestion engine
+  - [ ] `FriendSuggestionService`: Suggest potential friends
+  - [ ] Tests for suggestion algorithm
+
+#### API Layer
+- [ ] REST controllers
+  - [ ] `FriendController`
+    - [ ] Endpoints: `/api/friends`, `/api/friends/requests`, `/api/friends/requests/{id}`
+    - [ ] Authorization for friendship operations
+    - [ ] Tests for controller endpoints
+
+  - [ ] `FriendSuggestionController`
+    - [ ] Endpoints: `/api/friends/suggestions`
+    - [ ] Pagination and filtering
+    - [ ] Tests for suggestion retrieval
+
+#### Integration Tests
+- [ ] Friendship flow
   - [ ] Test friend request creation
   - [ ] Test request acceptance/rejection
-  - [ ] Test friendship status transitions
-  - [ ] Test friend list management
+  - [ ] Test friendship management
+  - [ ] Test edge cases (double requests, etc.)
 
-- [ ] Implement friend relationship entity
-  - [ ] Create FriendRelationship entity
-  - [ ] Implement bidirectional relationship
-  - [ ] Add request/accept operations
-  - [ ] Create friend list queries
+### MVP 4: Basic Wardrobe (3 weeks)
 
-- [ ] Implement friendship status value object
-  - [ ] Create FriendshipStatus value object
-  - [ ] Implement status transitions
-  - [ ] Add validation rules
-  - [ ] Create status-based permissions
+#### Deliverable
+Users can create a personal wardrobe and add clothing items
 
-- [ ] Create FriendRepository port
-  - [ ] Define repository interface
-  - [ ] Add friendship query methods
-  - [ ] Implement friend search operations
-  - [ ] Create status filtering methods
+#### Domain Layer
+- [ ] Wardrobe domain model
+  - [ ] `Wardrobe` aggregate root
+    - [ ] Fields: id, userId, name, description, createdAt, updatedAt
+    - [ ] Methods: addItem, removeItem, updateDetails
+    - [ ] Tests for wardrobe operations
 
-##### Application Layer
-- [ ] Implement User Application Service
-  - [ ] Define Input Ports (Use Cases)
-    - [ ] Create user registration use case
-    - [ ] Implement profile management use cases
-    - [ ] Add user search use case
-    - [ ] Create user status management use cases
-  
-  - [ ] Define Output Ports for infrastructure
-    - [ ] Create user repository port
-    - [ ] Implement notification port
-    - [ ] Add file storage port
-    - [ ] Create search port
-  
-  - [ ] Implement Service logic
-    - [ ] Create user registration logic
-    - [ ] Implement profile management
-    - [ ] Add user search service
-    - [ ] Create permission checking
+  - [ ] `Item` entity
+    - [ ] Fields: id, wardrobeId, name, description, category, attributes, images
+    - [ ] Methods: update, addImage, removeImage, categorize
+    - [ ] Tests for item operations
 
-- [ ] Implement Authentication Application Service
-  - [x] Define JWT service interface
-    - [x] Create token generation methods
-    - [x] Implement token validation interface
-    - [x] Add refresh methods
-    - [x] Create token parsing utilities
-  
-  - [ ] Implement login/register use cases
-    - [ ] Create login use case
-    - [ ] Implement registration use case
-    - [ ] Add password reset use case
-    - [ ] Create email verification use case
-  
-  - [x] Implement token management
-    - [x] Create token generation service
-    - [x] Implement token validation
-    - [x] Add token refresh logic
-    - [x] Create token revocation
+  - [ ] Value objects
+    - [ ] `Category` for item classification
+    - [ ] `ItemAttribute` for size, color, brand, etc.
+    - [ ] `ItemImage` with metadata and ordering
+    - [ ] Tests for value object validation
 
-- [ ] Create DTOs
-  - [ ] Request DTOs for API input
-    - [ ] Create user registration DTO
-    - [ ] Implement login request DTO
-    - [ ] Add profile update DTO
-    - [ ] Create search request DTO
-  
-  - [ ] Response DTOs for API output
-    - [ ] Create user response DTO
-    - [ ] Implement profile response DTO
-    - [ ] Add authentication response DTO
-    - [ ] Create search result DTO
-  
-  - [ ] Implement mappers between Domain and DTOs
-    - [ ] Create user mapper
-    - [ ] Implement profile mapper
-    - [ ] Add authentication mapper
-    - [ ] Create search result mapper
+  - [ ] Domain events
+    - [ ] `WardrobeCreatedEvent`
+    - [ ] `ItemAddedEvent`
+    - [ ] `ItemUpdatedEvent`
+    - [ ] Tests for event creation and properties
 
-##### API Layer
-- [ ] Write tests for user profile API endpoints
-  - [ ] Test profile creation endpoint
-  - [ ] Test profile retrieval endpoint
-  - [ ] Test profile update endpoint
-  - [ ] Test profile image upload endpoint
+  - [ ] Domain repositories (ports)
+    - [ ] `WardrobeRepository` interface
+      - [ ] Methods: findByUserId, findById, save, delete
+    - [ ] `ItemRepository` interface
+      - [ ] Methods: findByWardrobeId, findById, findByCategory, save, delete
+    - [ ] Tests for repository contracts
 
-- [ ] Implement user profile API controllers
-  - [ ] Create user registration controller
-  - [ ] Implement profile management controller
-  - [ ] Add profile image controller
-  - [ ] Create user search controller
+#### Application Layer
+- [ ] Wardrobe application services
+  - [ ] `WardrobeService`
+    - [ ] Methods: createWardrobe, updateWardrobe, deleteWardrobe, getWardrobe
+    - [ ] Business rule enforcement
+    - [ ] Tests for wardrobe management
 
-- [ ] Write API documentation for user endpoints
-  - [ ] Document registration endpoints
-  - [ ] Create profile endpoint documentation
-  - [ ] Add authentication endpoint docs
-  - [ ] Document search endpoints
+  - [ ] `ItemService`
+    - [ ] Methods: addItem, updateItem, removeItem, getItem, listItems
+    - [ ] Categorization logic
+    - [ ] Item attribute management
+    - [ ] Tests for item operations
 
-- [ ] Implement authentication controllers
-  - [ ] Create login endpoint
-  - [ ] Implement token refresh endpoint
-  - [ ] Add logout endpoint
-  - [ ] Create password reset endpoints
+  - [ ] `ItemImageService`
+    - [ ] Methods: addItemImage, removeItemImage, reorderImages
+    - [ ] Image processing and validation
+    - [ ] Tests for image operations
 
-- [ ] Implement friend relationship endpoints (foundation)
-  - [ ] Create friend request endpoint
-  - [ ] Implement request acceptance endpoint
-  - [ ] Add friend list endpoint
-  - [ ] Create friend search endpoint
+- [ ] DTOs
+  - [ ] Request DTOs
+    - [ ] `CreateWardrobeRequest`: name, description
+    - [ ] `AddItemRequest`: name, description, category, attributes
+    - [ ] Tests for DTO validation
 
-##### Infrastructure Adapters
-- [ ] Implement repository interfaces (ports) for User domain
-  - [ ] Create JPA repositories
-  - [ ] Implement custom queries
-  - [ ] Add specification support
-  - [ ] Create query projections
+  - [ ] Response DTOs
+    - [ ] `WardrobeResponseDto`: id, userId, name, description, itemCount
+    - [ ] `ItemResponseDto`: id, name, description, category, attributes, images
+    - [ ] Tests for DTO mapping
 
-- [ ] Create database adapter implementation (initially for local development)
-  - [ ] Implement user repository adapter
-  - [ ] Create profile repository adapter
-  - [ ] Add friend repository adapter
-  - [ ] Implement authentication repository adapter
+  - [ ] Mappers
+    - [ ] `WardrobeMapper`: Domain <-> DTO
+    - [ ] `ItemMapper`: Domain <-> DTO
+    - [ ] Tests for mapping behavior
 
-- [ ] Create file storage adapter interface for profile images
-  - [ ] Define storage service interface
-  - [ ] Create upload/download operations
-  - [ ] Add metadata management
-  - [ ] Implement cache control
+#### Infrastructure Layer
+- [ ] Persistence adapters
+  - [ ] JPA entities
+    - [ ] `WardrobeJpaEntity`
+    - [ ] `ItemJpaEntity`
+    - [ ] `CategoryJpaEntity`
+    - [ ] `ItemAttributeJpaEntity`
+    - [ ] `ItemImageJpaEntity`
+    - [ ] Tests for entity mappings
 
-- [ ] Implement file storage adapter for local development
-  - [ ] Create local filesystem adapter
-  - [ ] Implement path management
-  - [ ] Add file operations
-  - [ ] Create cleanup routines
+  - [ ] JPA repositories
+    - [ ] `WardrobeJpaRepository`
+    - [ ] `ItemJpaRepository`
+    - [ ] `CategoryJpaRepository`
+    - [ ] Tests for repository queries
 
-- [ ] Implement S3 storage adapter
-  - [ ] Create S3 client configuration
-  - [ ] Implement bucket operations
-  - [ ] Add upload/download functionality
-  - [ ] Create signed URL generation
+  - [ ] Repository adapters
+    - [ ] `WardrobeRepositoryAdapter`
+    - [ ] `ItemRepositoryAdapter`
+    - [ ] Tests for adapter behavior
 
-##### Testing & Documentation
-- [ ] Set up integration tests for API endpoints
-  - [ ] Create test scenarios for user endpoints
-  - [ ] Implement authentication test cases
-  - [ ] Add profile management tests
-  - [ ] Create friend relationship tests
+- [ ] Image processing
+  - [ ] `ItemImageProcessor`: Process, resize, optimize item images
+  - [ ] Tests for image processing
 
-- [ ] Configure OpenAPI/Swagger for API documentation
-  - [ ] Set up Swagger configuration
-  - [ ] Add API descriptions
-  - [ ] Create example requests/responses
-  - [ ] Implement security documentation
+#### API Layer
+- [ ] REST controllers
+  - [ ] `WardrobeController`
+    - [ ] Endpoints: `/api/wardrobes`, `/api/wardrobes/{id}`
+    - [ ] Authorization for wardrobe operations
+    - [ ] Tests for controller endpoints
 
-- [ ] Create authentication flow documentation
-  - [ ] Document registration flow
-  - [ ] Create login sequence diagrams
-  - [ ] Add token refresh documentation
-  - [ ] Document security model
+  - [ ] `ItemController`
+    - [ ] Endpoints: `/api/wardrobes/{id}/items`, `/api/items/{id}`
+    - [ ] Item filtering and search
+    - [ ] Tests for controller endpoints
 
-- [ ] Document user registration flow
-  - [ ] Create registration sequence diagram
-  - [ ] Document validation rules
-  - [ ] Add error scenarios
-  - [ ] Create user guide
+  - [ ] `ItemImageController`
+    - [ ] Endpoints: `/api/items/{id}/images`, `/api/items/images/{id}`
+    - [ ] Multipart image upload
+    - [ ] Tests for image handling
 
-- [ ] Document friend relationship flow
-  - [ ] Create relationship state diagram
-  - [ ] Document request/accept flow
-  - [ ] Add permissions documentation
-  - [ ] Create API usage examples
+#### Integration Tests
+- [ ] Wardrobe management flow
+  - [ ] Test wardrobe creation and retrieval
+  - [ ] Test item addition and management
+  - [ ] Test category and attribute operations
+  - [ ] Test image upload and processing
 
-##### DevOps
-- [ ] Set up code quality tools (SonarQube, checkstyle)
-  - [ ] Configure SonarQube integration
-  - [ ] Set up checkstyle rules
-  - [ ] Add PMD analysis
-  - [ ] Implement SpotBugs
+### MVP 5: Outfit Creation (2 weeks)
 
-- [ ] Configure JaCoCo for code coverage
-  - [ ] Set up coverage thresholds
-  - [ ] Configure report generation
-  - [ ] Add coverage verification
-  - [ ] Create coverage exclusions
+#### Deliverable
+Users can create outfits from their wardrobe items
 
-- [ ] Set up CI pipeline in GitHub Actions
-  - [ ] Create build workflow
-  - [ ] Implement test execution
-  - [ ] Add code quality checks
-  - [ ] Configure deployment steps
+#### Domain Layer
+- [ ] Outfit domain model
+  - [ ] `Outfit` aggregate root
+    - [ ] Fields: id, userId, name, description, items, occasion, season, createdAt, updatedAt
+    - [ ] Methods: addItem, removeItem, updateDetails, categorize
+    - [ ] Tests for outfit operations
 
-- [ ] Create database migrations for user tables
-  - [ ] Implement user table migrations
-  - [ ] Create profile table migrations
-  - [ ] Add authentication table migrations
-  - [ ] Implement friend relationship tables
+  - [ ] `OutfitItem` entity
+    - [ ] Fields: id, outfitId, itemId, position, notes
+    - [ ] Methods: updatePosition, addNotes
+    - [ ] Tests for outfit item operations
 
-### Phase 2: Wardrobe Management (Weeks 5-8)
+  - [ ] Value objects
+    - [ ] `OutfitOccasion` (formal, casual, work, etc.)
+    - [ ] `Season` (spring, summer, fall, winter)
+    - [ ] `ItemPosition` for visual arrangement
+    - [ ] Tests for value object validation
 
-#### Objectives
-- Implement wardrobe and item management
-- Develop outfit creation capabilities
-- Create the foundation for sharing and visibility controls
+  - [ ] Domain events
+    - [ ] `OutfitCreatedEvent`
+    - [ ] `OutfitUpdatedEvent`
+    - [ ] `ItemAddedToOutfitEvent`
+    - [ ] Tests for event creation and properties
 
-#### Tasks Checklist
+  - [ ] Domain repositories (ports)
+    - [ ] `OutfitRepository` interface
+      - [ ] Methods: findByUserId, findById, findByOccasion, findBySeason, save, delete
+    - [ ] Tests for repository contract
 
-##### Wardrobe Domain
-- [ ] Write tests for Wardrobe domain entities
-- [ ] Implement Wardrobe domain model
-- [ ] Write tests for wardrobe access control
-- [ ] Implement wardrobe access control
-- [ ] Write tests for wardrobe organization
-- [ ] Implement wardrobe organization features
+#### Application Layer
+- [ ] Outfit application services
+  - [ ] `OutfitService`
+    - [ ] Methods: createOutfit, updateOutfit, deleteOutfit, getOutfit, listOutfits
+    - [ ] Business rule enforcement
+    - [ ] Tests for outfit management
 
-##### Item Domain
-- [ ] Write tests for Item domain
-- [ ] Implement Item domain model (clothing items)
-- [ ] Write tests for item categorization
-- [ ] Implement item categorization
-- [ ] Write tests for item attributes
-- [ ] Implement item attributes (brand, color, size, etc.)
-- [ ] Write tests for item image management
-- [ ] Implement item image upload and processing
+  - [ ] `OutfitItemService`
+    - [ ] Methods: addItemToOutfit, removeItemFromOutfit, updateItemPosition
+    - [ ] Position management
+    - [ ] Tests for outfit item operations
 
-##### Outfit Domain
-- [ ] Write tests for Outfit domain
-- [ ] Implement Outfit domain model
-- [ ] Write tests for outfit composition
-- [ ] Implement outfit creation with items
-- [ ] Write tests for outfit visibility controls
-- [ ] Implement outfit sharing and visibility
+- [ ] DTOs
+  - [ ] Request DTOs
+    - [ ] `CreateOutfitRequest`: name, description, occasion, season, items
+    - [ ] `UpdateOutfitRequest`: name, description, occasion, season
+    - [ ] `AddItemToOutfitRequest`: itemId, position, notes
+    - [ ] Tests for DTO validation
 
-##### Application Services
-- [ ] Implement Wardrobe application service
-- [ ] Implement Item application service
-- [ ] Implement Outfit application service
-- [ ] Create DTOs for wardrobe features
-- [ ] Create DTOs for item features
-- [ ] Create DTOs for outfit features
+  - [ ] Response DTOs
+    - [ ] `OutfitResponseDto`: id, userId, name, description, occasion, season, items, createdAt
+    - [ ] `OutfitItemResponseDto`: id, itemId, position, notes, item
+    - [ ] Tests for DTO mapping
 
-##### API Layer
-- [ ] Implement wardrobe management endpoints
-- [ ] Implement item management endpoints
-- [ ] Implement outfit creation endpoints
-- [ ] Implement image upload endpoints
-- [ ] Document wardrobe management API
-- [ ] Document item management API
-- [ ] Document outfit creation API
+  - [ ] Mappers
+    - [ ] `OutfitMapper`: Domain <-> DTO
+    - [ ] `OutfitItemMapper`: Domain <-> DTO
+    - [ ] Tests for mapping behavior
 
-##### Infrastructure
-- [ ] Implement Wardrobe repository adapter
-- [ ] Implement Item repository adapter
-- [ ] Implement Outfit repository adapter
-- [ ] Implement image processing adapter
-- [ ] Create database migrations for wardrobe tables
+#### Infrastructure Layer
+- [ ] Persistence adapters
+  - [ ] JPA entities
+    - [ ] `OutfitJpaEntity`
+    - [ ] `OutfitItemJpaEntity`
+    - [ ] Tests for entity mappings
 
-### Phase 3: Social Features (Weeks 9-12)
+  - [ ] JPA repositories
+    - [ ] `OutfitJpaRepository`
+    - [ ] `OutfitItemJpaRepository`
+    - [ ] Tests for repository queries
 
-#### Objectives
-- Implement magazine-style layouts
-- Develop follow/follower functionality
-- Create activity feed
+  - [ ] Repository adapters
+    - [ ] `OutfitRepositoryAdapter`
+    - [ ] Tests for adapter behavior
 
-#### Tasks Checklist
+- [ ] Outfit image generation
+  - [ ] `OutfitImageGenerator`: Create composite image of outfit
+  - [ ] Tests for image generation
 
-##### Editorial Domain
-- [ ] Design and implement magazine layout domain model
-- [ ] Create editorial content domain model
-- [ ] Implement layout rendering services
+#### API Layer
+- [ ] REST controllers
+  - [ ] `OutfitController`
+    - [ ] Endpoints: `/api/outfits`, `/api/outfits/{id}`
+    - [ ] Authorization for outfit operations
+    - [ ] Tests for controller endpoints
 
-##### Social Domain
-- [ ] Implement follow/follower domain model
-- [ ] Create activity tracking domain model
-- [ ] Implement feed composition logic
+  - [ ] `OutfitItemController`
+    - [ ] Endpoints: `/api/outfits/{id}/items`, `/api/outfits/items/{id}`
+    - [ ] Item position management
+    - [ ] Tests for controller endpoints
 
-##### Application Services
-- [ ] Implement editorial application service
-- [ ] Implement social activity application service
-- [ ] Implement feed application service
+#### Integration Tests
+- [ ] Outfit management flow
+  - [ ] Test outfit creation and retrieval
+  - [ ] Test adding items to outfits
+  - [ ] Test outfit categorization
+  - [ ] Test outfit image generation
 
-##### API Layer
-- [ ] Create magazine layout endpoints
-- [ ] Implement follow/follower endpoints
-- [ ] Create activity feed endpoints
+### MVP 6: Visibility Controls (2 weeks)
 
-##### Infrastructure
-- [ ] Implement editorial repository adapter
-- [ ] Implement social repository adapter
-- [ ] Create caching layer for feed performance
-- [ ] Implement feed pagination
+#### Deliverable
+Users can control visibility of their wardrobe, items, and outfits
 
-### Phase 4: Collaborative Features (Weeks 13-16)
+#### Domain Layer
+- [ ] Privacy settings domain model
+  - [ ] `PrivacySettings` entity
+    - [ ] Fields: id, entityId, entityType, visibilityLevel, allowedUserIds
+    - [ ] Methods: updateVisibility, addAllowedUser, removeAllowedUser
+    - [ ] Tests for privacy settings operations
 
-#### Objectives
-- Implement collaborative outfit creation
-- Develop direct messaging
-- Create enhanced notification system
+  - [ ] Value objects
+    - [ ] `VisibilityLevel` enum (PUBLIC, FRIENDS_ONLY, SPECIFIC_USERS, PRIVATE)
+    - [ ] `EntityType` enum (WARDROBE, ITEM, OUTFIT)
+    - [ ] Tests for value object validation
 
-#### Tasks Checklist
+  - [ ] Domain services
+    - [ ] `PermissionEvaluator`: Check if a user has permission to access an entity
+    - [ ] Tests for permission evaluation logic
 
-##### Collaboration Domain
-- [ ] Implement collaborative features domain model
-- [ ] Create shared wardrobe access controls
-- [ ] Implement collaborative outfit logic
+  - [ ] Domain repositories (ports)
+    - [ ] `PrivacySettingsRepository` interface
+      - [ ] Methods: findByEntityIdAndType, save, delete
+    - [ ] Tests for repository contract
 
-##### Communication Domain
-- [ ] Create messaging domain model
-- [ ] Implement real-time notification system
-- [ ] Design and implement notification preferences
+#### Application Layer
+- [ ] Privacy application services
+  - [ ] `PrivacyService`
+    - [ ] Methods: updatePrivacySettings, getPrivacySettings, checkPermission
+    - [ ] Business rule enforcement
+    - [ ] Tests for privacy management
 
-##### Application Services
-- [ ] Implement collaboration application service
-- [ ] Implement messaging application service
-- [ ] Create notification application service
+  - [ ] `VisibilityQueryService`
+    - [ ] Methods: getVisibleWardrobes, getVisibleOutfits, getVisibleItems
+    - [ ] Visibility filtering
+    - [ ] Tests for visibility queries
 
-##### API Layer
-- [ ] Create collaboration endpoints
-- [ ] Implement messaging API
-- [ ] Create notification endpoints
-- [ ] Implement WebSocket for real-time features
+- [ ] DTOs
+  - [ ] Request DTOs
+    - [ ] `UpdatePrivacyRequest`: entityId, entityType, visibilityLevel, allowedUserIds
+    - [ ] Tests for DTO validation
 
-##### Infrastructure
-- [ ] Implement WebSocket adapters
-- [ ] Create message repository adapter
-- [ ] Implement notification delivery adapters
+  - [ ] Response DTOs
+    - [ ] `PrivacySettingsResponseDto`: id, entityId, entityType, visibilityLevel, allowedUsers
+    - [ ] Tests for DTO mapping
 
-## Post-MVP Features
+  - [ ] Mappers
+    - [ ] `PrivacySettingsMapper`: Domain <-> DTO
+    - [ ] Tests for mapping behavior
+
+#### Infrastructure Layer
+- [ ] Persistence adapters
+  - [ ] JPA entities
+    - [ ] `PrivacySettingsJpaEntity`
+    - [ ] Tests for entity mapping
+
+  - [ ] JPA repositories
+    - [ ] `PrivacySettingsJpaRepository`
+    - [ ] Tests for repository queries
+
+  - [ ] Repository adapters
+    - [ ] `PrivacySettingsRepositoryAdapter`
+    - [ ] Tests for adapter behavior
+
+- [ ] Security integration
+  - [ ] `CustomPermissionEvaluator`: Integrate with Spring Security
+  - [ ] Tests for security integration
+
+#### API Layer
+- [ ] REST controllers
+  - [ ] `PrivacyController`
+    - [ ] Endpoints: `/api/privacy`, `/api/privacy/{entityType}/{entityId}`
+    - [ ] Authorization for privacy operations
+    - [ ] Tests for controller endpoints
+
+- [ ] Security annotations
+  - [ ] `@VisibilityCheck`: Custom annotation for visibility enforcement
+  - [ ] Tests for annotation behavior
+
+#### Integration Tests
+- [ ] Privacy management flow
+  - [ ] Test privacy settings creation and update
+  - [ ] Test visibility filtering
+  - [ ] Test permission checking
+  - [ ] Test edge cases with different visibility levels
+
+## Future Enhancements
 
 ### Analytics and Insights
-- [ ] Implement wardrobe analytics domain
+- [ ] Implement wardrobe analytics
 - [ ] Create style statistics and reporting
 - [ ] Develop usage insights
 
