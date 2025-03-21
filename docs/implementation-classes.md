@@ -71,7 +71,7 @@ This document outlines all the classes required for implementing the Lookbook AP
 - `UserJpaEntity` (JPA entity)
 - `UserJpaRepository` (JPA repository)
 - `UserRepositoryAdapter` (adapter)
-- `JwtServiceImpl` (implementation)
+- `JwtServiceAdaptor` (implementation)
 - `AuthenticationController` (controller)
 - `UserController` (controller)
 
