@@ -1,4 +1,4 @@
-package com.lookbook.base.infrastructure.web.controllers;
+package com.lookbook.base.infrastructure.api.adapters;
 
 import java.util.List;
 import java.util.Set;
@@ -13,9 +13,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.lookbook.base.domain.exceptions.DomainException;
-import com.lookbook.base.infrastructure.web.response.ApiResponse;
-import com.lookbook.base.infrastructure.web.response.ErrorResponse;
-import com.lookbook.base.infrastructure.web.utils.PaginationUtils;
+import com.lookbook.base.infrastructure.api.response.ApiResponse;
+import com.lookbook.base.infrastructure.api.response.ErrorResponse;
+import com.lookbook.base.infrastructure.api.utils.PaginationUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
 

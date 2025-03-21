@@ -1,4 +1,4 @@
-package com.lookbook.base.infrastructure.web.exceptions;
+package com.lookbook.base.infrastructure.api.exceptions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +12,8 @@ import org.springframework.web.context.request.WebRequest;
 import com.lookbook.base.domain.exceptions.DomainException;
 import com.lookbook.base.domain.exceptions.EntityNotFoundException;
 import com.lookbook.base.domain.exceptions.ValidationException;
-import com.lookbook.base.infrastructure.web.response.ErrorResponse;
-import com.lookbook.base.infrastructure.web.response.ValidationErrorResponse;
+import com.lookbook.base.infrastructure.api.response.ErrorResponse;
+import com.lookbook.base.infrastructure.api.response.ValidationErrorResponse;
 
 /**
  * Utility methods for handling exceptions in the web layer.

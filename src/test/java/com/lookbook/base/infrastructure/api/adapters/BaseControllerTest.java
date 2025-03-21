@@ -1,4 +1,4 @@
-package com.lookbook.base.infrastructure.web.controllers;
+package com.lookbook.base.infrastructure.api.adapters;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -21,8 +21,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.core.Authentication;
 
-import com.lookbook.base.infrastructure.web.response.ApiResponse;
-import com.lookbook.base.infrastructure.web.response.ErrorResponse;
+import com.lookbook.base.infrastructure.api.response.ApiResponse;
+import com.lookbook.base.infrastructure.api.response.ErrorResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
 

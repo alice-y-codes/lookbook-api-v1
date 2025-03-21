@@ -1,4 +1,4 @@
-package com.lookbook.base.infrastructure.web.utils;
+package com.lookbook.base.infrastructure.api.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -18,7 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
-import com.lookbook.base.infrastructure.web.response.ApiResponse;
+import com.lookbook.base.infrastructure.api.response.ApiResponse;
 
 class PaginationUtilsTest {
 

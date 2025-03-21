@@ -1,4 +1,4 @@
-package com.lookbook.base.infrastructure.web.utils;
+package com.lookbook.base.infrastructure.api.utils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 
-import com.lookbook.base.infrastructure.web.response.ApiResponse;
+import com.lookbook.base.infrastructure.api.response.ApiResponse;
 
 /**
  * Utility methods for API pagination handling.

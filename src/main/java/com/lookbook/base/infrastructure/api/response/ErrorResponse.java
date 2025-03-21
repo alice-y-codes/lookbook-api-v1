@@ -1,4 +1,4 @@
-package com.lookbook.base.infrastructure.web.response;
+package com.lookbook.base.infrastructure.api.response;
 
 import java.time.LocalDateTime;
 

@@ -1,4 +1,4 @@
-package com.lookbook.base.infrastructure.web.response;
+package com.lookbook.base.infrastructure.api.response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
