@@ -15,6 +15,10 @@ import com.lookbook.base.domain.entities.TestEntity;
 import com.lookbook.base.infrastructure.persistence.config.TestJpaConfig;
 import com.lookbook.base.infrastructure.persistence.entities.JpaTestEntity;
 
+/**
+ * Integration test for the JpaEntityRepositoryAdapter.
+ * Verifies that the adapter meets the EntityRepository contract.
+ */
 @DataJpaTest
 @Import(TestJpaConfig.class)
 @ActiveProfiles("test")
@@ -26,7 +30,7 @@ public class JpaEntityRepositoryTest extends EntityRepositoryContractTest {
 
     @Override
     protected EntityRepository<TestEntity> createRepository() {
-        return new JpaEntityRepositoryAdapter(testRepository);
+        return new TestEntityRepositoryAdapter(testRepository);
     }
 
     @Override

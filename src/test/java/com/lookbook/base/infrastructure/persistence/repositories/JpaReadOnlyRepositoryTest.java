@@ -14,6 +14,10 @@ import com.lookbook.base.domain.entities.TestEntity;
 import com.lookbook.base.infrastructure.persistence.config.TestJpaConfig;
 import com.lookbook.base.infrastructure.persistence.entities.JpaTestEntity;
 
+/**
+ * Integration test for the JpaReadOnlyRepositoryAdapter.
+ * Verifies that the adapter meets the ReadOnlyRepository contract.
+ */
 @DataJpaTest
 @Import(TestJpaConfig.class)
 @ActiveProfiles("test")
@@ -24,7 +28,7 @@ public class JpaReadOnlyRepositoryTest extends ReadOnlyRepositoryContractTest {
 
     @Override
     protected ReadOnlyRepository<TestEntity> createRepository() {
-        return new JpaReadOnlyRepositoryAdapter(testRepository);
+        return new TestReadOnlyRepositoryAdapter(testRepository);
     }
 
     @Override
