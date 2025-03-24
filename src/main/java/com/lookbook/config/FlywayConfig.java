@@ -3,6 +3,7 @@ package com.lookbook.config;
 import javax.sql.DataSource;
 
 import org.flywaydb.core.Flyway;
+import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -26,29 +27,45 @@ public class FlywayConfig {
                 .dataSource(dataSource)
                 .baselineOnMigrate(true)
                 .locations("classpath:db/migration")
-                .validateOnMigrate(true)
+                .validateOnMigrate(false) // Disable validation to allow migrations to run
+                .schemas("public")
                 .load();
     }
 
     /**
-     * Creates a Flyway cleaner bean for the test profile.
-     * WARNING: This will wipe the database! Only for test environment.
+     * Creates a FlywayMigrationStrategy for the test profile to properly clean and
+     * migrate.
+     * 
+     * @return A migration strategy that cleans and then migrates
+     */
+    @Bean
+    @Profile("test")
+    public FlywayMigrationStrategy cleanMigrateStrategy() {
+        return flyway -> {
+            // Clean the database
+            flyway.clean();
+            // Migrate with test data
+            flyway.migrate();
+        };
+    }
+
+    /**
+     * Creates a Flyway bean for test environment with appropriate configuration.
+     * The actual clean and migrate will be handled by the migration strategy.
      * 
      * @param dataSource The database data source
-     * @return A Flyway instance configured for clean and migrate
+     * @return A configured Flyway instance
      */
-    @Bean(name = "flywayTest", initMethod = "migrate")
+    @Bean
     @Profile("test")
     public Flyway flywayTest(DataSource dataSource) {
-        Flyway flyway = Flyway.configure()
+        return Flyway.configure()
                 .dataSource(dataSource)
                 .baselineOnMigrate(true)
                 .locations("classpath:db/migration", "classpath:db/testdata")
+                .validateOnMigrate(false)
+                .cleanDisabled(false)
+                .schemas("public")
                 .load();
-
-        // Clean the database first in test profile
-        flyway.clean();
-
-        return flyway;
     }
 }

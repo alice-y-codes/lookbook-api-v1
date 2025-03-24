@@ -46,7 +46,10 @@ public abstract class BaseController {
      * @return A success response with data and message
      */
     protected <T> ApiResponse<T> createSuccessResponse(T data, String message) {
-        return ApiResponse.success(data, message);
+        logger.debug("Creating success response with data: {} and message: {}", data, message);
+        ApiResponse<T> response = ApiResponse.success(data, message);
+        logger.debug("Created API response: {}", response);
+        return response;
     }
 
     /**

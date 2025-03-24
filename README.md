@@ -1,6 +1,6 @@
 # Lookbook API
 
-A modern fashion social platform backend API built with Spring Boot, featuring user management, authentication, and rich domain models following clean architecture principles.
+A fashion social platform backend API built with Spring Boot, featuring user management, authentication, and rich domain models following clean architecture principles.
 
 ## Features
 

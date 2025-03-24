@@ -5,14 +5,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.lookbook.base.application.ports.repositories.EntityRepository;
 import com.lookbook.base.application.ports.repositories.EntityRepositoryContractTest;
 import com.lookbook.base.domain.entities.TestEntity;
-import com.lookbook.base.infrastructure.persistence.config.TestJpaConfig;
 import com.lookbook.base.infrastructure.persistence.entities.JpaTestEntity;
 
 /**
@@ -20,9 +17,7 @@ import com.lookbook.base.infrastructure.persistence.entities.JpaTestEntity;
  * Verifies that the adapter meets the EntityRepository contract.
  */
 @DataJpaTest
-@Import(TestJpaConfig.class)
 @ActiveProfiles("test")
-@Transactional
 public class JpaEntityRepositoryTest extends EntityRepositoryContractTest {
 
     @Autowired

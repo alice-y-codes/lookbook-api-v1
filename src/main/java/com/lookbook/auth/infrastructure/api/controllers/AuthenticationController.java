@@ -44,9 +44,17 @@ public class AuthenticationController extends BaseController {
         logger.info("Registering user with username: {}", registerRequest.username());
 
         AuthenticationResponse response = authenticationService.register(registerRequest);
+        logger.debug("Authentication response created: {}", response);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(createSuccessResponse(response, "User registered successfully"));
+        ApiResponse<AuthenticationResponse> apiResponse = createSuccessResponse(response,
+                "User registered successfully");
+        logger.debug("API response created: {}", apiResponse);
+
+        ResponseEntity<ApiResponse<AuthenticationResponse>> responseEntity = ResponseEntity.status(HttpStatus.CREATED)
+                .body(apiResponse);
+        logger.debug("Response entity created with status: {}", responseEntity.getStatusCode());
+
+        return responseEntity;
     }
 
     /**

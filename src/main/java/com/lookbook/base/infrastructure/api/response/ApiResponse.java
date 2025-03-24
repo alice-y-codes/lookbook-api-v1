@@ -100,4 +100,15 @@ public class ApiResponse<T> {
     public void setMeta(Map<String, Object> meta) {
         this.meta = meta;
     }
+
+    @Override
+    public String toString() {
+        return "ApiResponse{" +
+                "status='" + status + '\'' +
+                ", data=" + data +
+                ", message='" + message + '\'' +
+                ", timestamp=" + timestamp +
+                ", meta=" + meta +
+                '}';
+    }
 }

@@ -1,7 +1,11 @@
 package com.lookbook.auth.infrastructure.security;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,12 +29,29 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final List<String> publicEndpoints = Arrays.asList(
+            "/api/v1/auth/register",
+            "/api/v1/auth/login",
+            "/api/v1/auth/refresh",
+            "/v3/api-docs",
+            "/swagger-ui",
+            "/api/v1/health");
 
     public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        boolean shouldSkip = publicEndpoints.stream().anyMatch(endpoint -> path.startsWith(endpoint));
+        logger.debug("JWT Filter: Request path '{}' should skip filter: {}", path, shouldSkip);
+        return shouldSkip;
     }
 
     @Override
@@ -39,43 +60,49 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        // Get Authorization header
-        final String authHeader = request.getHeader("Authorization");
+        logger.debug("JWT Filter: Processing request for path: {}", request.getRequestURI());
 
-        // Skip validation if Authorization header is missing or not a Bearer token
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // Skip JWT validation for public endpoints
+        if (shouldNotFilter(request)) {
+            logger.debug("JWT Filter: Skipping JWT validation for public endpoint");
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Extract the token (remove "Bearer " prefix)
-        final String jwt = authHeader.substring(7);
+        // Get Authorization header
+        final String authHeader = request.getHeader("Authorization");
+        logger.debug("JWT Filter: Authorization header present: {}", authHeader != null);
 
-        // Extract username from token
-        final String username = jwtService.extractUsername(jwt);
-
-        // Check if username is extracted and the user isn't already authenticated
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // Load user details from the database
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            // Validate the token for this user
-            if (jwtService.isTokenValid(jwt, userDetails.getUsername())) {
-                // Create authentication token with user details
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null, // credentials (not needed after authentication)
-                        userDetails.getAuthorities());
-
-                // Add request details to the authentication token
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // Set the authentication in the security context
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
+        // Skip validation if Authorization header is missing or not a Bearer token
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            logger.debug("JWT Filter: No valid Authorization header, continuing chain");
+            filterChain.doFilter(request, response);
+            return;
         }
 
-        // Continue with the filter chain
+        // Extract token and username
+        final String jwt = authHeader.substring(7);
+        final String username = jwtService.extractUsername(jwt);
+        logger.debug("JWT Filter: Extracted username from token: {}", username);
+
+        // If username exists and no authentication is set
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+            logger.debug("JWT Filter: Loaded user details for username: {}", username);
+
+            // Validate token
+            if (jwtService.isTokenValid(jwt, username)) {
+                logger.debug("JWT Filter: Token is valid, setting authentication");
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities());
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                logger.debug("JWT Filter: Token is invalid");
+            }
+        }
         filterChain.doFilter(request, response);
     }
 }

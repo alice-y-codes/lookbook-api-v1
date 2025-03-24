@@ -3,8 +3,8 @@ package com.lookbook.auth.infrastructure.security;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -29,15 +31,29 @@ class JwtAuthenticationEntryPointTest {
     private HttpServletResponse response;
 
     private JwtAuthenticationEntryPoint entryPoint;
-    private StringWriter stringWriter;
-    private PrintWriter printWriter;
+    private ByteArrayOutputStream outputStream;
 
     @BeforeEach
     void setUp() throws Exception {
         entryPoint = new JwtAuthenticationEntryPoint();
-        stringWriter = new StringWriter();
-        printWriter = new PrintWriter(stringWriter);
-        when(response.getWriter()).thenReturn(printWriter);
+        outputStream = new ByteArrayOutputStream();
+        ServletOutputStream servletOutputStream = new ServletOutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                outputStream.write(b);
+            }
+
+            @Override
+            public boolean isReady() {
+                return true;
+            }
+
+            @Override
+            public void setWriteListener(WriteListener writeListener) {
+                // Not needed for testing
+            }
+        };
+        when(response.getOutputStream()).thenReturn(servletOutputStream);
     }
 
     @Test
@@ -56,13 +72,10 @@ class JwtAuthenticationEntryPointTest {
         verify(response).setStatus(HttpStatus.UNAUTHORIZED.value());
         verify(response).setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        // Force the PrintWriter to flush
-        printWriter.flush();
+        // Get response content
+        String responseBody = outputStream.toString();
 
         // Verify response content contains error elements
-        String responseBody = stringWriter.toString();
-        // We're not testing the exact JSON structure here, just that it contains the
-        // essential elements
         assertResponseContains(responseBody, "UNAUTHORIZED");
         assertResponseContains(responseBody, "Invalid credentials");
         assertResponseContains(responseBody, requestUri);
@@ -85,11 +98,10 @@ class JwtAuthenticationEntryPointTest {
         verify(response).setStatus(HttpStatus.UNAUTHORIZED.value());
         verify(response).setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        // Force the PrintWriter to flush
-        printWriter.flush();
+        // Get response content
+        String responseBody = outputStream.toString();
 
         // Verify response contains fallback message
-        String responseBody = stringWriter.toString();
         assertResponseContains(responseBody, "UNAUTHORIZED");
         assertResponseContains(responseBody, "Unauthorized");
         assertResponseContains(responseBody, requestUri);

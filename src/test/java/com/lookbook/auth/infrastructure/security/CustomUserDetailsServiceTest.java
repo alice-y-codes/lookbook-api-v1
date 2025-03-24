@@ -41,10 +41,27 @@ class CustomUserDetailsServiceTest {
         // Create an active test user
         activeUser = User.register(ACTIVE_USERNAME, "active@example.com", PASSWORD);
 
+        // Activate the user
+        try {
+            java.lang.reflect.Method activateMethod = activeUser.getClass().getDeclaredMethod("activate");
+            activateMethod.setAccessible(true);
+            activateMethod.invoke(activeUser);
+
+            // Verify that the user is active
+            java.lang.reflect.Method getStatusMethod = activeUser.getClass().getDeclaredMethod("getStatus");
+            getStatusMethod.setAccessible(true);
+            Object status = getStatusMethod.invoke(activeUser);
+            if (!status.toString().equals("ACTIVE")) {
+                throw new RuntimeException("Failed to activate user: " + status);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error activating test user", e);
+        }
+
         // Create an inactive test user
         inactiveUser = User.register(INACTIVE_USERNAME, "inactive@example.com", PASSWORD);
 
-        // Set the inactive user status
+        // Set the inactive user status - first activate, then deactivate
         try {
             java.lang.reflect.Method activateMethod = inactiveUser.getClass().getDeclaredMethod("activate");
             activateMethod.setAccessible(true);
@@ -53,6 +70,14 @@ class CustomUserDetailsServiceTest {
             java.lang.reflect.Method deactivateMethod = inactiveUser.getClass().getDeclaredMethod("deactivate");
             deactivateMethod.setAccessible(true);
             deactivateMethod.invoke(inactiveUser);
+
+            // Verify the user is inactive
+            java.lang.reflect.Method getStatusMethod = inactiveUser.getClass().getDeclaredMethod("getStatus");
+            getStatusMethod.setAccessible(true);
+            Object status = getStatusMethod.invoke(inactiveUser);
+            if (!status.toString().equals("INACTIVE")) {
+                throw new RuntimeException("Failed to deactivate user: " + status);
+            }
         } catch (Exception e) {
             throw new RuntimeException("Error setting up test users", e);
         }
