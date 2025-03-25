@@ -1,4 +1,4 @@
-package com.lookbook.base.application.ports.repositories;
+package com.integration.contracts.repositories;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,38 +11,43 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.lookbook.base.domain.entities.TestEntity;
+import com.integration.base.infrastructure.persistence.repositories.BaseRepositoryTest;
+import com.lookbook.base.application.ports.repositories.EntityRepository;
+import com.lookbook.base.domain.entities.BaseEntity;
 
 /**
  * Contract test for the EntityRepository interface.
  * Any implementation of EntityRepository should extend this test class
- * and implement the createRepository and createEntity methods from
- * BaseRepositoryContractTest.
+ * and implement the createRepository and createEntity methods.
+ * 
+ * @param <T> The type of entity being tested
  */
-public abstract class EntityRepositoryContractTest extends BaseRepositoryContractTest {
+public abstract class EntityRepositoryContractTest<T extends BaseEntity>
+        extends BaseRepositoryTest<T, EntityRepository<T>> {
 
-    protected abstract EntityRepository<TestEntity> createRepository();
+    protected abstract EntityRepository<T> createRepository();
 
-    protected EntityRepository<TestEntity> repository;
     protected LocalDateTime now;
 
     @BeforeEach
-    void setUp() {
-        repository = createRepository();
+    protected void setUp() {
+        super.setUp();
         now = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
     }
 
+    protected abstract T createEntity(String name);
+
     @Test
     void findByCreatedAtBetween_ShouldReturnEntitiesInRange() {
-        TestEntity entity1 = createEntity("test1");
-        TestEntity entity2 = createEntity("test2");
-        TestEntity entity3 = createEntity("test3");
+        T entity1 = createEntity("test1");
+        T entity2 = createEntity("test2");
+        T entity3 = createEntity("test3");
         setupTestData(Arrays.asList(entity1, entity2, entity3));
 
         LocalDateTime start = now.minusHours(1);
         LocalDateTime end = now.plusHours(1);
 
-        List<TestEntity> found = repository.findByCreatedAtBetween(start, end);
+        List<T> found = repository.findByCreatedAtBetween(start, end);
 
         assertEquals(3, found.size());
         assertTrue(found.stream().allMatch(e -> e.getCreatedAt().isAfter(start) &&
@@ -51,15 +56,15 @@ public abstract class EntityRepositoryContractTest extends BaseRepositoryContrac
 
     @Test
     void findByUpdatedAtBetween_ShouldReturnEntitiesInRange() {
-        TestEntity entity1 = createEntity("test1");
-        TestEntity entity2 = createEntity("test2");
-        TestEntity entity3 = createEntity("test3");
+        T entity1 = createEntity("test1");
+        T entity2 = createEntity("test2");
+        T entity3 = createEntity("test3");
         setupTestData(Arrays.asList(entity1, entity2, entity3));
 
         LocalDateTime start = now.minusHours(1);
         LocalDateTime end = now.plusHours(1);
 
-        List<TestEntity> found = repository.findByUpdatedAtBetween(start, end);
+        List<T> found = repository.findByUpdatedAtBetween(start, end);
 
         assertEquals(3, found.size());
         assertTrue(found.stream().allMatch(e -> e.getUpdatedAt().isAfter(start) &&
@@ -68,10 +73,10 @@ public abstract class EntityRepositoryContractTest extends BaseRepositoryContrac
 
     @Test
     void findByCreatedAtBefore_ShouldReturnOlderEntities() {
-        TestEntity entity = createEntity("test");
+        T entity = createEntity("test");
         setupTestData(Arrays.asList(entity));
 
-        List<TestEntity> found = repository.findByCreatedAtBefore(now.plusHours(1));
+        List<T> found = repository.findByCreatedAtBefore(now.plusHours(1));
 
         assertEquals(1, found.size());
         assertTrue(found.get(0).getCreatedAt().isBefore(now.plusHours(1)));
@@ -79,10 +84,10 @@ public abstract class EntityRepositoryContractTest extends BaseRepositoryContrac
 
     @Test
     void findByUpdatedAtBefore_ShouldReturnOlderEntities() {
-        TestEntity entity = createEntity("test");
+        T entity = createEntity("test");
         setupTestData(Arrays.asList(entity));
 
-        List<TestEntity> found = repository.findByUpdatedAtBefore(now.plusHours(1));
+        List<T> found = repository.findByUpdatedAtBefore(now.plusHours(1));
 
         assertEquals(1, found.size());
         assertTrue(found.get(0).getUpdatedAt().isBefore(now.plusHours(1)));
@@ -90,10 +95,10 @@ public abstract class EntityRepositoryContractTest extends BaseRepositoryContrac
 
     @Test
     void findByCreatedAtAfter_ShouldReturnNewerEntities() {
-        TestEntity entity = createEntity("test");
+        T entity = createEntity("test");
         setupTestData(Arrays.asList(entity));
 
-        List<TestEntity> found = repository.findByCreatedAtAfter(now.minusHours(1));
+        List<T> found = repository.findByCreatedAtAfter(now.minusHours(1));
 
         assertEquals(1, found.size());
         assertTrue(found.get(0).getCreatedAt().isAfter(now.minusHours(1)));
@@ -101,10 +106,10 @@ public abstract class EntityRepositoryContractTest extends BaseRepositoryContrac
 
     @Test
     void findByUpdatedAtAfter_ShouldReturnNewerEntities() {
-        TestEntity entity = createEntity("test");
+        T entity = createEntity("test");
         setupTestData(Arrays.asList(entity));
 
-        List<TestEntity> found = repository.findByUpdatedAtAfter(now.minusHours(1));
+        List<T> found = repository.findByUpdatedAtAfter(now.minusHours(1));
 
         assertEquals(1, found.size());
         assertTrue(found.get(0).getUpdatedAt().isAfter(now.minusHours(1)));
@@ -112,14 +117,14 @@ public abstract class EntityRepositoryContractTest extends BaseRepositoryContrac
 
     @Test
     void findMostRecent_ShouldReturnLimitedEntities() {
-        TestEntity entity1 = createEntity("test1");
-        TestEntity entity2 = createEntity("test2");
-        TestEntity entity3 = createEntity("test3");
-        TestEntity entity4 = createEntity("test4");
-        TestEntity entity5 = createEntity("test5");
+        T entity1 = createEntity("test1");
+        T entity2 = createEntity("test2");
+        T entity3 = createEntity("test3");
+        T entity4 = createEntity("test4");
+        T entity5 = createEntity("test5");
         setupTestData(Arrays.asList(entity1, entity2, entity3, entity4, entity5));
 
-        List<TestEntity> found = repository.findMostRecent(3);
+        List<T> found = repository.findMostRecent(3);
 
         assertEquals(3, found.size());
         // Verify entities are ordered by creation time (most recent first)
@@ -127,5 +132,10 @@ public abstract class EntityRepositoryContractTest extends BaseRepositoryContrac
             assertTrue(found.get(i - 1).getCreatedAt().isAfter(found.get(i).getCreatedAt()) ||
                     found.get(i - 1).getCreatedAt().equals(found.get(i).getCreatedAt()));
         }
+    }
+
+    @Override
+    protected T createTestEntity() {
+        return createEntity("test");
     }
 }

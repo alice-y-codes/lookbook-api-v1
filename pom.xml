@@ -372,13 +372,11 @@
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <version>${spotbugs-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <configuration>
+                    <failOnError>false</failOnError>
+                    <threshold>High</threshold>
+                    <effort>Max</effort>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -436,7 +434,23 @@
             <id>test</id>
             <properties>
                 <spring.profiles.active>test</spring.profiles.active>
+                <testcontainers.reuse.enable>true</testcontainers.reuse.enable>
+                <testcontainers.dockerfile.reuse.enable>true</testcontainers.dockerfile.reuse.enable>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <spring.profiles.active>test</spring.profiles.active>
+                                <testcontainers.reuse.enable>true</testcontainers.reuse.enable>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

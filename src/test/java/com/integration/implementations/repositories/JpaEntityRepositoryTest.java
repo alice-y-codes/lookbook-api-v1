@@ -1,31 +1,34 @@
-package com.lookbook.base.infrastructure.persistence.repositories;
+package com.integration.implementations.repositories;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.ActiveProfiles;
 
+import com.integration.contracts.repositories.EntityRepositoryContractTest;
 import com.lookbook.base.application.ports.repositories.EntityRepository;
-import com.lookbook.base.application.ports.repositories.EntityRepositoryContractTest;
 import com.lookbook.base.domain.entities.TestEntity;
-import com.lookbook.base.infrastructure.persistence.entities.JpaTestEntity;
+import com.lookbook.base.infrastructure.persistence.repositories.TestEntityRepository;
+import com.lookbook.base.infrastructure.persistence.repositories.TestEntityRepositoryAdapter;
 
 /**
  * Integration test for the JpaEntityRepositoryAdapter.
  * Verifies that the adapter meets the EntityRepository contract.
  */
-@DataJpaTest
-@ActiveProfiles("test")
-public class JpaEntityRepositoryTest extends EntityRepositoryContractTest {
+public class JpaEntityRepositoryTest extends EntityRepositoryContractTest<TestEntity> {
 
     @Autowired
     private TestEntityRepository testRepository;
 
+    private EntityRepository<TestEntity> repository;
+
+    public JpaEntityRepositoryTest() {
+        super();
+    }
+
     @Override
     protected EntityRepository<TestEntity> createRepository() {
-        return new TestEntityRepositoryAdapter(testRepository);
+        repository = new TestEntityRepositoryAdapter(testRepository);
+        return repository;
     }
 
     @Override
@@ -39,11 +42,11 @@ public class JpaEntityRepositoryTest extends EntityRepositoryContractTest {
         testRepository.deleteAll();
         testRepository.flush(); // Ensure deletion is flushed to the database
 
-        // Convert domain entities to JPA entities and save them
-        List<JpaTestEntity> jpaEntities = entities.stream()
-                .map(JpaTestEntity::new)
-                .collect(Collectors.toList());
-        testRepository.saveAll(jpaEntities);
+        // Save each entity using the domain repository
+        EntityRepository<TestEntity> repository = createRepository();
+        for (TestEntity entity : entities) {
+            repository.save(entity);
+        }
         testRepository.flush(); // Ensure saves are flushed to the database
     }
 }

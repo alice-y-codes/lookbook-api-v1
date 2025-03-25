@@ -1,4 +1,4 @@
-package com.lookbook.base.application.ports.repositories;
+package com.integration.contracts.repositories;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
+import com.lookbook.base.application.ports.repositories.BaseRepository;
 import com.lookbook.base.domain.entities.TestEntity;
 
 /**

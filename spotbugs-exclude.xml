@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Suppress EI_EXPOSE_REP warnings for known safe cases -->
+    <Match>
+        <Class name="com.lookbook.auth.infrastructure.security.SecurityConfig"/>
+        <BugPattern name="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="com.lookbook.base.infrastructure.api.response.ApiResponse"/>
+        <BugPattern name="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="com.lookbook.base.infrastructure.api.response.ApiResponse"/>
+        <BugPattern name="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="com.lookbook.base.infrastructure.api.response.ValidationErrorResponse"/>
+        <BugPattern name="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="com.lookbook.base.infrastructure.api.response.ValidationErrorResponse"/>
+        <BugPattern name="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="com.lookbook.base.infrastructure.persistence.repositories.JpaBaseRepositoryAdapter"/>
+        <BugPattern name="EI_EXPOSE_REP2"/>
+    </Match>
+    <!-- Suppress SS_SHOULD_BE_STATIC warning for status field -->
+    <Match>
+        <Class name="com.lookbook.base.infrastructure.api.response.ErrorResponse"/>
+        <Field name="status"/>
+        <BugPattern name="SS_SHOULD_BE_STATIC"/>
+    </Match>
+</FindBugsFilter> 

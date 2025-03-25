@@ -1,5 +1,8 @@
 package com.lookbook.auth.infrastructure.security;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -12,12 +15,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.lookbook.auth.application.ports.services.JwtService;
+import com.lookbook.user.domain.aggregates.User;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -45,11 +52,15 @@ class JwtAuthenticationFilterTest {
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     private static final String USERNAME = "testuser";
     private static final String VALID_TOKEN = "valid.jwt.token";
+    private static final String REQUEST_URI = "/api/v1/protected-endpoint";
 
     @BeforeEach
     void setUp() {
         jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService, userDetailsService);
         SecurityContextHolder.clearContext(); // Clear security context before each test
+
+        // Mock request URI for all tests
+        when(request.getRequestURI()).thenReturn(REQUEST_URI);
     }
 
     @Test
@@ -62,6 +73,9 @@ class JwtAuthenticationFilterTest {
 
         // Verify filter chain was continued
         verify(filterChain).doFilter(request, response);
+
+        // Verify security context is empty
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
 
         // No interaction with JWT service or UserDetailsService
         verifyNoInteractions(jwtService);
@@ -79,6 +93,9 @@ class JwtAuthenticationFilterTest {
         // Verify filter chain was continued
         verify(filterChain).doFilter(request, response);
 
+        // Verify security context is empty
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+
         // No interaction with JWT service or UserDetailsService
         verifyNoInteractions(jwtService);
         verifyNoInteractions(userDetailsService);
@@ -86,8 +103,17 @@ class JwtAuthenticationFilterTest {
 
     @Test
     void doFilterInternal_ShouldSetAuthentication_WhenValidToken() throws ServletException, IOException {
-        // Create user details
-        UserDetails userDetails = new User(USERNAME, "password", Collections.emptyList());
+        // Create domain user
+        User domainUser = User.register(
+                USERNAME,
+                USERNAME + "@example.com",
+                "Password123!");
+
+        // Create user details from domain user
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                domainUser.getUsername().getValue(),
+                domainUser.getHashedPassword(),
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 
         // Mock request to return Bearer token
         when(request.getHeader("Authorization")).thenReturn("Bearer " + VALID_TOKEN);
@@ -109,22 +135,25 @@ class JwtAuthenticationFilterTest {
         verify(jwtService).extractUsername(VALID_TOKEN);
         verify(userDetailsService).loadUserByUsername(USERNAME);
         verify(jwtService).isTokenValid(VALID_TOKEN, USERNAME);
+
+        // Verify security context is set
+        SecurityContext context = SecurityContextHolder.getContext();
+        assertNotNull(context);
+        Authentication authentication = context.getAuthentication();
+        assertNotNull(authentication);
+        assertEquals(userDetails, authentication.getPrincipal());
+        assertEquals(1, authentication.getAuthorities().size());
+        assertEquals("ROLE_USER", authentication.getAuthorities().iterator().next().getAuthority());
     }
 
     @Test
     void doFilterInternal_ShouldNotSetAuthentication_WhenInvalidToken() throws ServletException, IOException {
-        // Create user details
-        UserDetails userDetails = new User(USERNAME, "password", Collections.emptyList());
-
         // Mock request to return Bearer token
         when(request.getHeader("Authorization")).thenReturn("Bearer " + VALID_TOKEN);
 
         // Mock JWT service
         when(jwtService.extractUsername(VALID_TOKEN)).thenReturn(USERNAME);
         when(jwtService.isTokenValid(VALID_TOKEN, USERNAME)).thenReturn(false);
-
-        // Mock UserDetailsService
-        when(userDetailsService.loadUserByUsername(USERNAME)).thenReturn(userDetails);
 
         // Call the filter
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
@@ -134,8 +163,11 @@ class JwtAuthenticationFilterTest {
 
         // Verify interactions with services
         verify(jwtService).extractUsername(VALID_TOKEN);
-        verify(userDetailsService).loadUserByUsername(USERNAME);
         verify(jwtService).isTokenValid(VALID_TOKEN, USERNAME);
+        verifyNoInteractions(userDetailsService);
+
+        // Verify security context is empty
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
@@ -152,8 +184,39 @@ class JwtAuthenticationFilterTest {
         // Verify filter chain was continued
         verify(filterChain).doFilter(request, response);
 
+        // Verify security context is empty
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+
         // Verify interactions with services
         verify(jwtService).extractUsername(VALID_TOKEN);
         verifyNoInteractions(userDetailsService);
+    }
+
+    @Test
+    void doFilterInternal_ShouldContinueFilterChain_WhenUserNotFound() throws ServletException, IOException {
+        // Mock request to return Bearer token
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + VALID_TOKEN);
+
+        // Mock JWT service
+        when(jwtService.extractUsername(VALID_TOKEN)).thenReturn(USERNAME);
+        when(jwtService.isTokenValid(VALID_TOKEN, USERNAME)).thenReturn(true);
+
+        // Mock UserDetailsService to throw exception
+        when(userDetailsService.loadUserByUsername(USERNAME))
+                .thenThrow(new UsernameNotFoundException("User not found"));
+
+        // Call the filter
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+
+        // Verify filter chain was continued despite the exception
+        verify(filterChain).doFilter(request, response);
+
+        // Verify security context is empty
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+
+        // Verify interactions with services
+        verify(jwtService).extractUsername(VALID_TOKEN);
+        verify(userDetailsService).loadUserByUsername(USERNAME);
+        verify(jwtService).isTokenValid(VALID_TOKEN, USERNAME);
     }
 }
