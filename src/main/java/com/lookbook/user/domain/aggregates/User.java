@@ -102,18 +102,17 @@ public class User extends BaseEntity {
      * @param id             The user's ID
      * @param username       The username value object
      * @param email          The email value object
-     * @param hashedPassword The hashed password
-     * @param salt           The salt used for password hashing
+     * @param hashedPassword The BCrypt-hashed password
      * @param status         The user's status
      * @param createdAt      When the user was created
      * @param updatedAt      When the user was last updated
      * @return A reconstructed User entity
      */
     public static User reconstitute(UUID id, Username username, Email email,
-            String hashedPassword, String salt, UserStatus status,
+            String hashedPassword, UserStatus status,
             LocalDateTime createdAt, LocalDateTime updatedAt) {
 
-        Password password = Password.fromHash(hashedPassword, salt);
+        Password password = Password.fromHash(hashedPassword);
 
         return new User(id, username, email, password, status, createdAt, updatedAt);
     }
@@ -203,19 +202,9 @@ public class User extends BaseEntity {
      * Gets the hashed password value.
      * This is primarily for persistence.
      *
-     * @return The hashed password
+     * @return The BCrypt-hashed password
      */
     public String getHashedPassword() {
         return password.getHashedValue();
-    }
-
-    /**
-     * Gets the password salt.
-     * This is primarily for persistence.
-     *
-     * @return The password salt
-     */
-    public String getPasswordSalt() {
-        return password.getSalt();
     }
 }

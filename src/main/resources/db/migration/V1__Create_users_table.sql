@@ -9,7 +9,6 @@ CREATE TABLE users (
     username VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    password_salt VARCHAR(255) NOT NULL,
     status VARCHAR(20) NOT NULL
 );
 
@@ -25,6 +24,5 @@ COMMENT ON COLUMN users.created_at IS 'Timestamp when the user was created';
 COMMENT ON COLUMN users.updated_at IS 'Timestamp when the user was last updated';
 COMMENT ON COLUMN users.username IS 'Unique username for login and identification';
 COMMENT ON COLUMN users.email IS 'User email address, must be unique';
-COMMENT ON COLUMN users.password_hash IS 'Bcrypt hash of the user password';
-COMMENT ON COLUMN users.password_salt IS 'Salt used for password hashing';
+COMMENT ON COLUMN users.password_hash IS 'BCrypt hash of the user password (includes salt)';
 COMMENT ON COLUMN users.status IS 'Current status of the user (ACTIVE, INACTIVE, PENDING)'; 

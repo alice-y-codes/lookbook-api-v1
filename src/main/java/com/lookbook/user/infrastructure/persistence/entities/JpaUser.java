@@ -1,5 +1,7 @@
 package com.lookbook.user.infrastructure.persistence.entities;
 
+import org.hibernate.annotations.Comment;
+
 import com.lookbook.base.infrastructure.persistence.entities.JpaBaseEntity;
 import com.lookbook.user.domain.aggregates.User;
 import com.lookbook.user.domain.aggregates.UserStatus;
@@ -28,10 +30,8 @@ public class JpaUser extends JpaBaseEntity {
     private String email;
 
     @Column(name = "password_hash", nullable = false)
+    @Comment("BCrypt hash of the user password (includes salt)")
     private String passwordHash;
-
-    @Column(name = "password_salt", nullable = false)
-    private String passwordSalt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -54,7 +54,6 @@ public class JpaUser extends JpaBaseEntity {
         this.username = user.getUsername().getValue();
         this.email = user.getEmail().getValue();
         this.passwordHash = user.getHashedPassword();
-        this.passwordSalt = user.getPasswordSalt();
         this.status = user.getStatus();
     }
 
@@ -69,7 +68,6 @@ public class JpaUser extends JpaBaseEntity {
                 Username.of(username),
                 Email.of(email),
                 passwordHash,
-                passwordSalt,
                 status,
                 getCreatedAt(),
                 getUpdatedAt());
@@ -89,10 +87,6 @@ public class JpaUser extends JpaBaseEntity {
         return passwordHash;
     }
 
-    public String getPasswordSalt() {
-        return passwordSalt;
-    }
-
     public UserStatus getStatus() {
         return status;
     }
@@ -107,10 +101,6 @@ public class JpaUser extends JpaBaseEntity {
 
     protected void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
-    }
-
-    protected void setPasswordSalt(String passwordSalt) {
-        this.passwordSalt = passwordSalt;
     }
 
     protected void setStatus(UserStatus status) {

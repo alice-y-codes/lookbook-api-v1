@@ -27,7 +27,7 @@ class PasswordTest {
         // Then
         assertNotNull(password);
         assertNotNull(password.getHashedValue());
-        assertNotNull(password.getSalt());
+        assertTrue(password.getHashedValue().startsWith("$2a$")); // BCrypt hash starts with $2a$
     }
 
     @Test
@@ -111,22 +111,19 @@ class PasswordTest {
 
         // Then
         assertNotEquals(password1.getHashedValue(), password2.getHashedValue());
-        assertNotEquals(password1.getSalt(), password2.getSalt());
     }
 
     @Test
-    void shouldRecreateFromHashAndSalt() {
+    void shouldRecreateFromHash() {
         // Given
         Password original = Password.create(VALID_PASSWORD);
         String hash = original.getHashedValue();
-        String salt = original.getSalt();
 
         // When
-        Password recreated = Password.fromHash(hash, salt);
+        Password recreated = Password.fromHash(hash);
 
         // Then
         assertEquals(hash, recreated.getHashedValue());
-        assertEquals(salt, recreated.getSalt());
     }
 
     @Test
@@ -134,10 +131,9 @@ class PasswordTest {
         // Given
         Password original = Password.create(VALID_PASSWORD);
         String hash = original.getHashedValue();
-        String salt = original.getSalt();
 
         // When
-        Password recreated = Password.fromHash(hash, salt);
+        Password recreated = Password.fromHash(hash);
 
         // Then
         assertTrue(recreated.matches(VALID_PASSWORD));
@@ -148,8 +144,7 @@ class PasswordTest {
         // Given
         Password password1 = Password.create(VALID_PASSWORD);
         String hash = password1.getHashedValue();
-        String salt = password1.getSalt();
-        Password password2 = Password.fromHash(hash, salt);
+        Password password2 = Password.fromHash(hash);
 
         // Then
         assertEquals(password1, password2);

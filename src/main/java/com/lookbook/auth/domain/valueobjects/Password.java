@@ -1,25 +1,23 @@
 package com.lookbook.auth.domain.valueobjects;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.Objects;
 import java.util.regex.Pattern;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.lookbook.base.domain.validation.ValidationResult;
 import com.lookbook.base.domain.valueobjects.BaseValueObject;
 
 /**
  * Password value object that represents a secure password.
- * Enforces password strength rules and handles secure storage.
+ * Enforces password strength rules and handles secure storage using Spring
+ * Security's BCrypt.
  */
 public class Password extends BaseValueObject<Password> {
-    private static final String HASH_ALGORITHM = "SHA-256";
-    private static final int SALT_LENGTH = 16;
     private static final int MIN_LENGTH = 8;
     private static final int MAX_LENGTH = 100;
+    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     // Regex patterns for password validation
     private static final String HAS_LOWERCASE = ".*[a-z].*";
@@ -40,9 +38,8 @@ public class Password extends BaseValueObject<Password> {
     private static final String ERROR_NO_DIGIT = "Password must contain at least one digit";
     private static final String ERROR_NO_SPECIAL = "Password must contain at least one special character";
 
-    // These are the fields for storing the password securely
-    private final String hashedValue; // The hashed password
-    private final String salt; // The salt used for hashing
+    // The hashed password (includes salt as part of BCrypt)
+    private final String hashedValue;
 
     // This field is only used temporarily during object creation and validation
     private final transient String rawPassword;
@@ -51,10 +48,9 @@ public class Password extends BaseValueObject<Password> {
      * Private constructor for pre-hashed passwords.
      * This constructor is used by the fromHash factory method.
      */
-    private Password(String hashedValue, String salt, boolean preHashed) {
+    private Password(String hashedValue, boolean preHashed) {
         super();
         this.rawPassword = null;
-        this.salt = salt;
         this.hashedValue = hashedValue;
         if (!preHashed) {
             validateSelf(); // Only validate for new passwords
@@ -66,18 +62,11 @@ public class Password extends BaseValueObject<Password> {
      * Private constructor to enforce factory method usage.
      *
      * @param rawPassword The plaintext password
-     * @param salt        The salt to use, or null to generate a new salt
      */
-    private Password(String rawPassword, String salt) {
+    private Password(String rawPassword) {
         super(); // Call base constructor
         this.rawPassword = rawPassword;
-
-        // Generate or use provided salt
-        this.salt = (salt == null) ? generateSalt() : salt;
-
-        // Hash the password with the salt
-        this.hashedValue = (rawPassword != null) ? hashPassword(rawPassword, this.salt) : null;
-
+        this.hashedValue = passwordEncoder.encode(rawPassword);
         validateSelf(); // Validate after initialization
     }
 
@@ -90,19 +79,19 @@ public class Password extends BaseValueObject<Password> {
      * @throws ValidationException if the password is invalid
      */
     public static Password create(String rawPassword) {
-        return new Password(rawPassword, null);
+        return new Password(rawPassword);
     }
 
     /**
-     * Factory method to create a Password value object from existing hash and salt.
+     * Factory method to create a Password value object from an existing BCrypt
+     * hash.
      * This should be used when reconstructing a password from storage.
      *
-     * @param hashedPassword The already-hashed password
-     * @param salt           The salt used for hashing
+     * @param hashedPassword The BCrypt-hashed password
      * @return A new Password value object
      */
-    public static Password fromHash(String hashedPassword, String salt) {
-        return new Password(hashedPassword, salt, true);
+    public static Password fromHash(String hashedPassword) {
+        return new Password(hashedPassword, true);
     }
 
     /**
@@ -156,34 +145,21 @@ public class Password extends BaseValueObject<Password> {
         if (plainTextPassword == null || plainTextPassword.isEmpty()) {
             return false;
         }
-
-        String candidateHash = hashPassword(plainTextPassword, this.salt);
-        return MessageDigest.isEqual(
-                candidateHash.getBytes(StandardCharsets.UTF_8),
-                this.hashedValue.getBytes(StandardCharsets.UTF_8));
+        return passwordEncoder.matches(plainTextPassword, this.hashedValue);
     }
 
     /**
      * Gets the hashed password value.
      *
-     * @return The hashed password
+     * @return The BCrypt-hashed password
      */
     public String getHashedValue() {
         return hashedValue;
     }
 
     /**
-     * Gets the salt used for hashing.
-     *
-     * @return The salt
-     */
-    public String getSalt() {
-        return salt;
-    }
-
-    /**
      * Compares this password with another for value equality.
-     * Two passwords are equal if they have the same hash and salt.
+     * Two passwords are equal if they have the same hash.
      *
      * @param other The object to compare with
      * @return true if the passwords have the same value
@@ -191,60 +167,22 @@ public class Password extends BaseValueObject<Password> {
     @Override
     protected boolean valueEquals(Object other) {
         Password password = (Password) other;
-        return Objects.equals(hashedValue, password.hashedValue) &&
-                Objects.equals(salt, password.salt);
+        return Objects.equals(hashedValue, password.hashedValue);
     }
 
     /**
      * Generates a hash code based on the password value.
      *
-     * @return A hash code derived from the hashed password and salt
+     * @return A hash code derived from the hashed password
      */
     @Override
     protected int valueHashCode() {
-        return Objects.hash(hashedValue, salt);
+        return Objects.hash(hashedValue);
     }
 
     @Override
     public String toString() {
         // Never reveal the actual password hash in toString
         return "Password[PROTECTED]";
-    }
-
-    /**
-     * Generates a random salt for password hashing.
-     *
-     * @return A base64-encoded random salt
-     */
-    private String generateSalt() {
-        SecureRandom random = new SecureRandom();
-        byte[] salt = new byte[SALT_LENGTH];
-        random.nextBytes(salt);
-        return Base64.getEncoder().encodeToString(salt);
-    }
-
-    /**
-     * Hashes a password with the provided salt.
-     *
-     * @param password The plaintext password to hash
-     * @param salt     The salt to use for hashing
-     * @return The base64-encoded hashed password
-     */
-    private String hashPassword(String password, String salt) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance(HASH_ALGORITHM);
-
-            // Add salt to the digest
-            digest.update(Base64.getDecoder().decode(salt));
-
-            // Hash the password
-            byte[] hashedBytes = digest.digest(password.getBytes(StandardCharsets.UTF_8));
-
-            // Return the base64-encoded hash
-            return Base64.getEncoder().encodeToString(hashedBytes);
-
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Failed to hash password: " + e.getMessage(), e);
-        }
     }
 }
