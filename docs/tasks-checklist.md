@@ -231,7 +231,7 @@ Users can register, log in, and receive JWT tokens
 #### Application Layer
 - [ ] Authentication application services
   - [ ] `JwtService` interface
-    - [ ] Path: `com.lookbook.auth.application.ports.services.JwtService`
+    - [ ] Path: `com.lookbook.auth.domain.services.JwtService`
     - [ ] Methods: generateToken, validateToken, refreshToken, extractClaims
     - [ ] Tests: JWT service tests
 

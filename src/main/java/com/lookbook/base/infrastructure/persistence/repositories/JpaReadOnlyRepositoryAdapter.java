@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.lookbook.base.application.ports.repositories.ReadOnlyRepository;
+import com.lookbook.base.domain.repositories.ReadOnlyRepository;
 import com.lookbook.base.domain.entities.BaseEntity;
 import com.lookbook.base.infrastructure.persistence.entities.JpaBaseEntity;
 

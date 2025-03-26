@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.integration.contracts.repositories.EntityRepositoryContractTest;
-import com.lookbook.base.application.ports.repositories.EntityRepository;
+import com.lookbook.base.domain.repositories.EntityRepository;
 import com.lookbook.base.domain.entities.TestEntity;
 import com.lookbook.base.infrastructure.persistence.repositories.TestEntityRepository;
 import com.lookbook.base.infrastructure.persistence.repositories.TestEntityRepositoryAdapter;

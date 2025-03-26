@@ -12,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.integration.base.infrastructure.persistence.repositories.BaseRepositoryTest;
-import com.lookbook.base.application.ports.repositories.EntityRepository;
+import com.lookbook.base.domain.repositories.EntityRepository;
 import com.lookbook.base.domain.entities.BaseEntity;
 
 /**

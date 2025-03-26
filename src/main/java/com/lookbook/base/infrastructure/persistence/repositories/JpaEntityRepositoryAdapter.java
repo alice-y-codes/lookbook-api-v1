@@ -10,7 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.lookbook.base.application.ports.repositories.EntityRepository;
+import com.lookbook.base.domain.repositories.EntityRepository;
 import com.lookbook.base.domain.entities.BaseEntity;
 import com.lookbook.base.infrastructure.persistence.entities.JpaBaseEntity;
 

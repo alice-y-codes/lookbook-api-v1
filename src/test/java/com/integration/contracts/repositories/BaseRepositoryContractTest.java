@@ -12,7 +12,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.lookbook.base.application.ports.repositories.BaseRepository;
+import com.lookbook.base.domain.repositories.BaseRepository;
 import com.lookbook.base.domain.entities.TestEntity;
 
 /**

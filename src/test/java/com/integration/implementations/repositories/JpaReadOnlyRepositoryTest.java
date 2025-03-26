@@ -16,7 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.integration.contracts.repositories.ReadOnlyRepositoryContractTest;
 import com.lookbook.LookbookApplication;
-import com.lookbook.base.application.ports.repositories.ReadOnlyRepository;
+import com.lookbook.base.domain.repositories.ReadOnlyRepository;
 import com.lookbook.base.domain.entities.TestEntity;
 import com.lookbook.base.infrastructure.persistence.entities.JpaTestEntity;
 import com.lookbook.base.infrastructure.persistence.repositories.TestEntityRepository;
