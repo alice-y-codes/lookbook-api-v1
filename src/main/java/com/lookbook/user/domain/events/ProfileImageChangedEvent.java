@@ -65,4 +65,9 @@ public class ProfileImageChangedEvent extends BaseDomainEvent {
     public int getImageHeight() {
         return imageHeight;
     }
+
+    @Override
+    public UUID getAggregateId() {
+        return userId;
+    }
 }

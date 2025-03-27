@@ -24,23 +24,32 @@ class BaseDomainEventTest {
      */
     private static class TestEvent extends BaseDomainEvent {
         private final String data;
+        private final UUID aggregateId;
 
         public TestEvent(String data) {
+            this.aggregateId = UUID.randomUUID();
             this.data = data;
         }
 
         public TestEvent(String data, Map<String, Object> metadata) {
             super(metadata);
+            this.aggregateId = UUID.randomUUID();
             this.data = data;
         }
 
         public TestEvent(UUID eventId, LocalDateTime occurredAt, Map<String, Object> metadata, String data) {
             super(eventId, occurredAt, metadata);
+            this.aggregateId = UUID.randomUUID();
             this.data = data;
         }
 
         public String getData() {
             return data;
+        }
+
+        @Override
+        public UUID getAggregateId() {
+            return aggregateId;
         }
     }
 
@@ -48,8 +57,16 @@ class BaseDomainEventTest {
      * Another event type for testing type discrimination.
      */
     private static class OtherTestEvent extends BaseDomainEvent {
+        private final UUID aggregateId;
+
         public OtherTestEvent() {
             super();
+            this.aggregateId = UUID.randomUUID();
+        }
+
+        @Override
+        public UUID getAggregateId() {
+            return aggregateId;
         }
     }
 

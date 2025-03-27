@@ -7,38 +7,15 @@ import com.lookbook.base.domain.repositories.EntityRepository;
 import com.lookbook.user.domain.aggregates.UserProfile;
 
 /**
- * Repository interface for managing UserProfile entities.
+ * Repository interface for Profile entities.
  */
 public interface ProfileRepository extends EntityRepository<UserProfile> {
 
     /**
-     * Find a user profile by its ID.
+     * Finds a profile by user ID.
      *
-     * @param id the profile ID
-     * @return an Optional containing the profile if found
-     */
-    Optional<UserProfile> findById(UUID id);
-
-    /**
-     * Find a user profile by the user's ID.
-     *
-     * @param userId the user ID
-     * @return an Optional containing the profile if found
+     * @param userId The user's ID
+     * @return The profile if found
      */
     Optional<UserProfile> findByUserId(UUID userId);
-
-    /**
-     * Save a user profile.
-     *
-     * @param profile the profile to save
-     * @return the saved profile
-     */
-    UserProfile save(UserProfile profile);
-
-    /**
-     * Delete a user profile by its ID.
-     *
-     * @param id the profile ID
-     */
-    void deleteById(UUID id);
 }

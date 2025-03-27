@@ -30,6 +30,15 @@ public class Biography extends BaseValueObject<Biography> {
         return new Biography(value);
     }
 
+    /**
+     * Creates an empty biography with a default placeholder text.
+     *
+     * @return a new Biography instance with placeholder text
+     */
+    public static Biography empty() {
+        return new Biography("Tell us about yourself...");
+    }
+
     @Override
     public ValidationResult validate() {
         ValidationResult result = ValidationResult.valid();

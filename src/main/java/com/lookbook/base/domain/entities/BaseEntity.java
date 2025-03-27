@@ -1,8 +1,13 @@
 package com.lookbook.base.domain.entities;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+
+import com.lookbook.base.domain.events.DomainEvent;
 
 /**
  * Base class for all domain entities.
@@ -13,6 +18,7 @@ public abstract class BaseEntity {
     private final UUID id;
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private List<DomainEvent> domainEvents = new ArrayList<>();
 
     /**
      * Creates a new entity with a generated ID and current timestamps.
@@ -70,6 +76,18 @@ public abstract class BaseEntity {
      */
     protected void markUpdated() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    protected void addDomainEvent(DomainEvent event) {
+        domainEvents.add(event);
+    }
+
+    public List<DomainEvent> getDomainEvents() {
+        return Collections.unmodifiableList(domainEvents);
+    }
+
+    public void clearDomainEvents() {
+        domainEvents.clear();
     }
 
     @Override

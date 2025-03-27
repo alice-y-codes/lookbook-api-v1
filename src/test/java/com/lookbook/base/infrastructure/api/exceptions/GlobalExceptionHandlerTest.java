@@ -38,6 +38,7 @@ class GlobalExceptionHandlerTest {
         when(webRequest.getDescription(false)).thenReturn("uri=/api/test");
     }
 
+    @SuppressWarnings("null")
     @Test
     void handleValidationExceptions_shouldReturnValidationErrorResponse() {
         // Given
@@ -68,6 +69,7 @@ class GlobalExceptionHandlerTest {
         assertEquals("Email is invalid", errors.get("email"));
     }
 
+    @SuppressWarnings("null")
     @Test
     void handleDomainExceptions_shouldReturnErrorResponse() {
         // Given
@@ -86,6 +88,7 @@ class GlobalExceptionHandlerTest {
         assertEquals("/api/test", response.getBody().getPath());
     }
 
+    @SuppressWarnings("null")
     @Test
     void handleResourceNotFound_shouldReturnNotFoundResponse() {
         // Given
@@ -103,6 +106,7 @@ class GlobalExceptionHandlerTest {
         assertEquals("/api/test", response.getBody().getPath());
     }
 
+    @SuppressWarnings("null")
     @Test
     void handleAuthenticationExceptions_shouldReturnUnauthorizedResponse() {
         // Given
@@ -121,6 +125,7 @@ class GlobalExceptionHandlerTest {
         assertEquals("/api/test", response.getBody().getPath());
     }
 
+    @SuppressWarnings("null")
     @Test
     void handleAccessDeniedExceptions_shouldReturnForbiddenResponse() {
         // Given
@@ -139,6 +144,7 @@ class GlobalExceptionHandlerTest {
         assertEquals("/api/test", response.getBody().getPath());
     }
 
+    @SuppressWarnings("null")
     @Test
     void handleGeneralExceptions_shouldReturnServerErrorResponse() {
         // Given

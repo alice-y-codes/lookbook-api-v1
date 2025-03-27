@@ -41,4 +41,9 @@ public class ProfileCreatedEvent extends BaseDomainEvent {
     public String getDisplayName() {
         return displayName;
     }
+
+    @Override
+    public UUID getAggregateId() {
+        return userId;
+    }
 }

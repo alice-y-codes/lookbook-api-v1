@@ -274,7 +274,39 @@ Start with the domain model, which represents the core business logic:
 
 The application layer orchestrates the domain layer and implements use cases:
 
-1. **Create DTOs**:
+1. **Service Layer**:
+   ```java
+   @Service
+   @Transactional
+   public class CommentService {
+       private final CommentRepository commentRepository;
+       private final ApplicationEventPublisher eventPublisher;
+       
+       public Comment createComment(CreateCommentRequest request) {
+           // Create comment
+           Comment comment = new Comment(
+               UUID.randomUUID(),
+               request.getAuthorId(),
+               request.getTargetId(),
+               request.getContent()
+           );
+           
+           // Save comment
+           comment = commentRepository.save(comment);
+           
+           // Publish application event for side effects
+           eventPublisher.publishEvent(new NotifyCommentCreatedEvent(
+               comment.getId(),
+               comment.getAuthorId(),
+               comment.getTargetId()
+           ));
+           
+           return comment;
+       }
+   }
+   ```
+
+2. **Create DTOs**:
    - Create request/response DTOs in `com.lookbook.[feature].application.dto`
    - Example:
      ```java
@@ -299,7 +331,7 @@ The application layer orchestrates the domain layer and implements use cases:
      ) {}
      ```
 
-2. **Create mappers**:
+3. **Create mappers**:
    - Implement mapper interfaces in `com.lookbook.[feature].application.mappers`
    - Use MapStruct for automatic implementation
    - Example:
@@ -314,7 +346,7 @@ The application layer orchestrates the domain layer and implements use cases:
      }
      ```
 
-3. **Implement application services**:
+4. **Implement application services**:
    - Create service classes in `com.lookbook.[feature].application.services`
    - Inject domain repositories and services
    - Example:
@@ -350,7 +382,7 @@ The application layer orchestrates the domain layer and implements use cases:
      }
      ```
 
-4. **Write unit tests**:
+5. **Write unit tests**:
    - Test application services with mocked dependencies
    - Example:
      ```java

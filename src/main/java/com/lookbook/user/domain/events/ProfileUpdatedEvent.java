@@ -49,4 +49,9 @@ public class ProfileUpdatedEvent extends BaseDomainEvent {
     public String getBiography() {
         return biography;
     }
+
+    @Override
+    public UUID getAggregateId() {
+        return userId;
+    }
 }

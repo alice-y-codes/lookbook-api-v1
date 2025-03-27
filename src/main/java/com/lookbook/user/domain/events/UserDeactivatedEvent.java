@@ -34,4 +34,9 @@ public class UserDeactivatedEvent extends BaseDomainEvent {
     public String getUsername() {
         return username;
     }
+
+    @Override
+    public UUID getAggregateId() {
+        return userId;
+    }
 }

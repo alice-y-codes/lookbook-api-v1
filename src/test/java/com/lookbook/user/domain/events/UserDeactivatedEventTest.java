@@ -8,32 +8,28 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-class ProfileCreatedEventTest {
+class UserDeactivatedEventTest {
 
     @Test
     void constructor_ShouldInitializeEventCorrectly() {
         // Arrange
         UUID userId = UUID.randomUUID();
-        UUID profileId = UUID.randomUUID();
-        String displayName = "Test User";
+        String username = "testuser";
 
         // Act
-        ProfileCreatedEvent event = new ProfileCreatedEvent(userId, profileId, displayName);
+        UserDeactivatedEvent event = new UserDeactivatedEvent(userId, username);
 
         // Assert
         assertNotNull(event.getEventId());
         assertNotNull(event.getOccurredAt());
         assertEquals(userId, event.getUserId());
-        assertEquals(profileId, event.getProfileId());
-        assertEquals(displayName, event.getDisplayName());
+        assertEquals(username, event.getUsername());
         assertEquals(userId, event.getAggregateId());
 
         // Verify metadata
         assertTrue(event.getMetadata().containsKey("userId"));
-        assertTrue(event.getMetadata().containsKey("profileId"));
-        assertTrue(event.getMetadata().containsKey("displayName"));
+        assertTrue(event.getMetadata().containsKey("username"));
         assertEquals(userId.toString(), event.getMetadata().get("userId"));
-        assertEquals(profileId.toString(), event.getMetadata().get("profileId"));
-        assertEquals(displayName, event.getMetadata().get("displayName"));
+        assertEquals(username, event.getMetadata().get("username"));
     }
 }

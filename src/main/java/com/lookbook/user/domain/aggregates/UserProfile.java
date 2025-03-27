@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.lookbook.base.domain.entities.BaseEntity;
+import com.lookbook.user.domain.events.ProfileCreatedEvent;
 import com.lookbook.user.domain.valueobjects.Biography;
 import com.lookbook.user.domain.valueobjects.DisplayName;
 import com.lookbook.user.domain.valueobjects.ProfileImage;
@@ -43,7 +44,16 @@ public class UserProfile extends BaseEntity {
      */
     public static UserProfile create(UUID userId, DisplayName displayName, Biography biography,
             LocalDateTime createdAt) {
-        return new UserProfile(UUID.randomUUID(), userId, displayName, biography, null, createdAt, createdAt);
+        UserProfile profile = new UserProfile(UUID.randomUUID(), userId, displayName, biography, null, createdAt,
+                createdAt);
+
+        // Add domain event
+        profile.addDomainEvent(new ProfileCreatedEvent(
+                userId,
+                profile.getId(),
+                displayName.getValue()));
+
+        return profile;
     }
 
     /**
@@ -58,7 +68,33 @@ public class UserProfile extends BaseEntity {
      */
     public static UserProfile create(UUID userId, DisplayName displayName, Biography biography,
             ProfileImage profileImage, LocalDateTime createdAt) {
-        return new UserProfile(UUID.randomUUID(), userId, displayName, biography, profileImage, createdAt, createdAt);
+        UserProfile profile = new UserProfile(UUID.randomUUID(), userId, displayName, biography, profileImage,
+                createdAt, createdAt);
+
+        // Add domain event
+        profile.addDomainEvent(new ProfileCreatedEvent(
+                userId,
+                profile.getId(),
+                displayName.getValue()));
+
+        return profile;
+    }
+
+    /**
+     * Reconstructs a user profile from persistence.
+     *
+     * @param id           the profile's ID
+     * @param userId       the ID of the user this profile belongs to
+     * @param displayName  the user's display name
+     * @param biography    the user's biography
+     * @param profileImage the user's profile image
+     * @param createdAt    the creation timestamp
+     * @param updatedAt    the last update timestamp
+     * @return a reconstructed UserProfile instance
+     */
+    public static UserProfile reconstitute(UUID id, UUID userId, DisplayName displayName,
+            Biography biography, ProfileImage profileImage, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        return new UserProfile(id, userId, displayName, biography, profileImage, createdAt, updatedAt);
     }
 
     /**

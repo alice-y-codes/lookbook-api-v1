@@ -2,253 +2,170 @@
 
 ## Overview
 
-This guide outlines the complete implementation of domain events in the Lookbook API, following Domain-Driven Design principles and Clean Architecture.
+This guide outlines the implementation of domain events and application events in the Lookbook API, following Domain-Driven Design principles and Clean Architecture.
 
-## 1. Event Infrastructure
+Domain Entity -> Domain Event -> Application Service -> Application Event -> Event Listeners
 
-### 1.1 Base Event Components
+## 1. Event Types
 
-```java
-// Domain Event Interface
-public interface DomainEvent {
-    UUID getEventId();
-    LocalDateTime getOccurredAt();
-    String getEventType();
-    Map<String, Object> getMetadata();
-}
+### 1.1 Domain Events
 
-// Base Event Implementation
-public abstract class BaseDomainEvent implements DomainEvent {
-    private final UUID eventId;
-    private final LocalDateTime occurredAt;
-    private final Map<String, Object> metadata;
-    
-    protected BaseDomainEvent(Map<String, Object> metadata) {
-        this.eventId = UUID.randomUUID();
-        this.occurredAt = LocalDateTime.now();
-        this.metadata = Collections.unmodifiableMap(metadata);
-    }
-}
-```
-
-### 1.2 Event Collection
+Domain events represent facts about what happened in the domain. They are:
+- Immutable
+- Focused on domain facts
+- Part of the domain model
+- Raised by domain entities
 
 ```java
-// Base Entity with Event Collection
-public abstract class BaseEntity {
-    private List<DomainEvent> domainEvents = new ArrayList<>();
-    
-    protected void addDomainEvent(DomainEvent event) {
-        domainEvents.add(event);
-    }
-    
-    public List<DomainEvent> getDomainEvents() {
-        return Collections.unmodifiableList(domainEvents);
-    }
-    
-    public void clearDomainEvents() {
-        domainEvents.clear();
-    }
-}
-```
-
-### 1.3 Event Publishing
-
-```java
-// Event Publisher Interface
-public interface DomainEventPublisher {
-    void publish(DomainEvent event);
-}
-
-// Event Store Interface
-public interface EventStore {
-    void save(DomainEvent event);
-    List<DomainEvent> getEvents(UUID aggregateId);
-    List<DomainEvent> getEventsByType(String eventType);
-    void markAsProcessed(UUID eventId);
-    void markAsFailed(UUID eventId, Exception error);
-}
-```
-
-## 2. Event Implementation
-
-### 2.1 User Domain Events
-
-```java
-// User Registration
+// Example Domain Event
 public class UserRegisteredEvent extends BaseDomainEvent {
     private final UUID userId;
     private final String username;
     private final String email;
     
     public UserRegisteredEvent(UUID userId, String username, String email) {
-        super(createMetadata(userId, username, email));
+        super(Map.of(
+            "userId", userId,
+            "username", username,
+            "email", email));
         this.userId = userId;
         this.username = username;
         this.email = email;
     }
 }
+```
 
-// User Activation
-public class UserActivatedEvent extends BaseDomainEvent {
-    private final UUID userId;
+### 1.2 Application Events
+
+Application events represent actions to be taken as a result of domain events. They are:
+- Part of the application layer
+- Focused on side effects
+- Transaction-aware
+- Handled by event listeners
+
+```java
+// Example Application Event
+public class SendWelcomeEmailEvent {
+    private final String email;
     private final String username;
     
-    public UserActivatedEvent(UUID userId, String username) {
-        super(createMetadata(userId, username));
-        this.userId = userId;
+    public SendWelcomeEmailEvent(String email, String username) {
+        this.email = email;
         this.username = username;
     }
 }
 ```
 
-### 2.2 Profile Domain Events
+## 2. Event Flow
 
-```java
-// Profile Creation
-public class ProfileCreatedEvent extends BaseDomainEvent {
-    private final UUID userId;
-    private final UUID profileId;
-    private final String displayName;
-    
-    public ProfileCreatedEvent(UUID userId, UUID profileId, String displayName) {
-        super(createMetadata(userId, profileId, displayName));
-        this.userId = userId;
-        this.profileId = profileId;
-        this.displayName = displayName;
-    }
-}
+### 2.1 Domain Layer
 
-// Profile Update
-public class ProfileUpdatedEvent extends BaseDomainEvent {
-    private final UUID userId;
-    private final UUID profileId;
-    private final String displayName;
-    private final String biography;
-    
-    public ProfileUpdatedEvent(UUID userId, UUID profileId, String displayName, String biography) {
-        super(createMetadata(userId, profileId, displayName, biography));
-        this.userId = userId;
-        this.profileId = profileId;
-        this.displayName = displayName;
-        this.biography = biography;
-    }
-}
-```
+1. **Event Definition**:
+   ```java
+   public class User {
+       public User(UUID id, String username, String email) {
+           // Domain logic
+           addDomainEvent(new UserRegisteredEvent(id, username, email));
+       }
+   }
+   ```
 
-## 3. Event Handling
+2. **Event Collection**:
+   ```java
+   public abstract class BaseEntity {
+       private List<DomainEvent> domainEvents = new ArrayList<>();
+       
+       protected void addDomainEvent(DomainEvent event) {
+           domainEvents.add(event);
+       }
+       
+       public List<DomainEvent> getDomainEvents() {
+           return Collections.unmodifiableList(domainEvents);
+       }
+       
+       public void clearDomainEvents() {
+           domainEvents.clear();
+       }
+   }
+   ```
 
-### 3.1 Event Handlers
+### 2.2 Application Layer
 
-```java
-// Event Handler Interface
-public interface DomainEventHandler<T extends DomainEvent> {
-    void handle(T event);
-}
+1. **Service Layer**:
+   ```java
+   @Service
+   @Transactional
+   public class UserService {
+       private final UserRepository userRepository;
+       private final ApplicationEventPublisher eventPublisher;
+       
+       public User registerUser(RegisterUserRequest request) {
+           // Create and validate user
+           User user = new User(UUID.randomUUID(), request.getUsername(), request.getEmail());
+           
+           // Save user in same transaction
+           user = userRepository.save(user);
+           
+           // Publish application event for side effects
+           eventPublisher.publishEvent(new SendWelcomeEmailEvent(user.getEmail(), user.getUsername()));
+           
+           return user;
+       }
+   }
+   ```
 
-// Example Handler Implementation
-@Component
-public class UserRegistrationHandler implements DomainEventHandler<UserRegisteredEvent> {
-    private final EmailService emailService;
-    private final NotificationService notificationService;
-    
-    @Override
-    public void handle(UserRegisteredEvent event) {
-        // Send welcome email
-        emailService.sendWelcomeEmail(event.getUserId());
-        
-        // Send welcome notification
-        notificationService.sendWelcomeNotification(event.getUserId());
-    }
-}
-```
+2. **Event Listeners**:
+   ```java
+   @Component
+   public class UserRegistrationListener {
+       private final EmailService emailService;
+       
+       @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+       public void handleUserRegistered(SendWelcomeEmailEvent event) {
+           emailService.sendWelcomeEmail(event.getEmail(), event.getUsername());
+       }
+   }
+   ```
 
-### 3.2 Event Processing
+## 3. Best Practices
 
-```java
-@Service
-public class EventProcessor {
-    private final EventStore eventStore;
-    private final EventHandlers eventHandlers;
-    
-    @Scheduled(fixedDelay = 1000)
-    public void processEvents() {
-        List<DomainEvent> events = eventStore.getUnprocessedEvents();
-        
-        for (DomainEvent event : events) {
-            try {
-                eventHandlers.handle(event);
-                eventStore.markAsProcessed(event.getEventId());
-            } catch (Exception e) {
-                eventStore.markAsFailed(event.getEventId(), e);
-            }
-        }
-    }
-}
-```
+### 3.1 Domain Events
 
-## 4. Event Persistence
+1. **Immutability**:
+   - Events should be immutable
+   - Use final fields
+   - No setters
 
-### 4.1 Event Store Implementation
+2. **Focused Data**:
+   - Include only relevant domain facts
+   - Avoid application-specific data
+   - Keep events small and focused
 
-```java
-@Entity
-@Table(name = "domain_events")
-public class JpaDomainEvent {
-    @Id
-    private UUID eventId;
-    private LocalDateTime occurredAt;
-    private String eventType;
-    private String aggregateId;
-    private String eventData; // JSON
-    private boolean processed;
-    private String errorMessage;
-}
+3. **Naming**:
+   - Use past tense (e.g., `UserRegisteredEvent`)
+   - Be specific about what happened
+   - Follow domain language
 
-@Service
-public class JpaEventStore implements EventStore {
-    private final EventRepository eventRepository;
-    
-    @Override
-    public void save(DomainEvent event) {
-        JpaDomainEvent jpaEvent = new JpaDomainEvent(event);
-        eventRepository.save(jpaEvent);
-    }
-}
-```
+### 3.2 Application Events
 
-## 5. Usage in Application Services
+1. **Transaction Awareness**:
+   - Use `@TransactionalEventListener`
+   - Specify transaction phase
+   - Handle failures appropriately
 
-### 5.1 Example Service Implementation
+2. **Side Effects**:
+   - Keep listeners focused
+   - Handle one type of side effect
+   - Log important actions
 
-```java
-@Service
-@Transactional
-public class ProfileService {
-    private final ProfileRepository profileRepository;
-    private final DomainEventPublisher eventPublisher;
-    
-    public void updateProfile(UUID profileId, UpdateProfileRequest request) {
-        // Load aggregate
-        UserProfile profile = profileRepository.findById(profileId)
-            .orElseThrow(() -> new EntityNotFoundException(UserProfile.class, profileId));
-        
-        // Execute domain logic
-        profile.updateProfile(request);
-        
-        // Save changes
-        profileRepository.save(profile);
-        
-        // Publish events
-        profile.getDomainEvents().forEach(eventPublisher::publish);
-        profile.clearDomainEvents();
-    }
-}
-```
+3. **Error Handling**:
+   - Implement retry mechanisms
+   - Log failures
+   - Monitor processing
 
-## 6. Testing
+## 4. Testing
 
-### 6.1 Event Tests
+### 4.1 Domain Event Tests
 
 ```java
 @DisplayName("UserRegisteredEvent")
@@ -265,115 +182,73 @@ class UserRegisteredEventTest {
         assertEquals(username, event.getUsername());
         assertEquals(email, event.getEmail());
     }
-    
-    @Test
-    void shouldCreateMetadataWithAllProperties() {
-        UserRegisteredEvent event = new UserRegisteredEvent(userId, username, email);
-        Map<String, Object> metadata = event.getMetadata();
-        
-        assertEquals(userId.toString(), metadata.get("userId"));
-        assertEquals(username, metadata.get("username"));
-        assertEquals(email, metadata.get("email"));
-    }
 }
 ```
 
-### 6.2 Event Handler Tests
+### 4.2 Application Event Tests
 
 ```java
 @ExtendWith(MockitoExtension.class)
-class UserRegistrationHandlerTest {
+class UserRegistrationListenerTest {
     @Mock
     private EmailService emailService;
     
-    @Mock
-    private NotificationService notificationService;
-    
-    private UserRegistrationHandler handler;
+    private UserRegistrationListener listener;
     
     @BeforeEach
     void setUp() {
-        handler = new UserRegistrationHandler(emailService, notificationService);
+        listener = new UserRegistrationListener(emailService);
     }
     
     @Test
-    void shouldSendWelcomeEmailAndNotification() {
+    void shouldSendWelcomeEmail() {
         // Given
-        UserRegisteredEvent event = new UserRegisteredEvent(userId, username, email);
+        SendWelcomeEmailEvent event = new SendWelcomeEmailEvent("test@example.com", "testuser");
         
         // When
-        handler.handle(event);
+        listener.handleUserRegistered(event);
         
         // Then
-        verify(emailService).sendWelcomeEmail(userId);
-        verify(notificationService).sendWelcomeNotification(userId);
+        verify(emailService).sendWelcomeEmail("test@example.com", "testuser");
     }
 }
 ```
 
-## 7. Implementation Steps
+## 5. Implementation Steps
 
-1. **Infrastructure Setup**
-   - Implement base event components
-   - Add event collection to BaseEntity
-   - Create event publishing interfaces
+1. **Domain Layer**:
+   - Define domain events
+   - Add event collection to entities
+   - Implement event raising
 
-2. **Event Definition**
-   - Define domain events for each significant domain action
-   - Implement event classes with proper metadata
-   - Add event tests
+2. **Application Layer**:
+   - Define application events
+   - Update services to publish events
+   - Implement event listeners
 
-3. **Event Handling**
-   - Create event handlers for each event type
-   - Implement event processing infrastructure
-   - Add handler tests
+3. **Infrastructure Layer**:
+   - Configure transaction management
+   - Set up event processing
+   - Implement monitoring
 
-4. **Event Persistence**
-   - Implement event store
-   - Create database schema for events
-   - Add persistence tests
-
-5. **Integration**
-   - Update application services to publish events
-   - Configure event processing
-   - Test complete flow
-
-## 8. Best Practices
-
-1. **Event Creation**
-   - Events should be immutable
-   - Include all relevant data
-   - Use meaningful names
-
-2. **Event Handling**
-   - Keep handlers focused and single-purpose
-   - Handle failures gracefully
-   - Log important events
-
-3. **Event Processing**
-   - Process events asynchronously
-   - Implement retry mechanisms
-   - Monitor processing status
-
-4. **Testing**
-   - Test event creation
-   - Test event handling
+4. **Testing**:
+   - Test domain events
+   - Test application events
    - Test complete flows
-   - Test error scenarios
 
-## 9. Monitoring and Maintenance
+## 6. Monitoring and Maintenance
 
-1. **Event Monitoring**
-   - Track event processing status
-   - Monitor failed events
-   - Set up alerts for processing issues
+1. **Event Processing**:
+   - Monitor event processing status
+   - Track processing times
+   - Alert on failures
 
-2. **Event Cleanup**
-   - Implement event retention policies
-   - Archive old events
-   - Clean up failed events
+2. **Performance**:
+   - Monitor event volume
+   - Track processing latency
+   - Optimize as needed
 
-3. **Performance**
-   - Monitor event processing latency
-   - Optimize event storage
-   - Scale event processing as needed 
+3. **Maintenance**:
+   - Regular event cleanup
+   - Monitor storage usage
+   - Update documentation 

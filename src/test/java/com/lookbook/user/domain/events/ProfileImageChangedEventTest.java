@@ -2,66 +2,52 @@ package com.lookbook.user.domain.events;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
-import java.util.Map;
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("ProfileImageChangedEvent")
 class ProfileImageChangedEventTest {
 
-    private UUID userId;
-    private UUID profileId;
-    private URI newImageUrl;
-    private String imageFormat;
-    private int imageWidth;
-    private int imageHeight;
-
-    @BeforeEach
-    void setUp() {
-        userId = UUID.randomUUID();
-        profileId = UUID.randomUUID();
-        newImageUrl = URI.create("https://example.com/profile.jpg");
-        imageFormat = "jpg";
-        imageWidth = 800;
-        imageHeight = 600;
-    }
-
     @Test
-    @DisplayName("should create event with valid data")
-    void shouldCreateEventWithValidData() {
-        // When
-        ProfileImageChangedEvent event = new ProfileImageChangedEvent(userId, profileId, newImageUrl,
-                imageFormat, imageWidth, imageHeight);
+    void constructor_ShouldInitializeEventCorrectly() {
+        // Arrange
+        UUID userId = UUID.randomUUID();
+        UUID profileId = UUID.randomUUID();
+        URI newImageUrl = URI.create("https://example.com/image.jpg");
+        String imageFormat = "JPEG";
+        int imageWidth = 800;
+        int imageHeight = 600;
 
-        // Then
-        assertNotNull(event);
+        // Act
+        ProfileImageChangedEvent event = new ProfileImageChangedEvent(
+                userId, profileId, newImageUrl, imageFormat, imageWidth, imageHeight);
+
+        // Assert
+        assertNotNull(event.getEventId());
+        assertNotNull(event.getOccurredAt());
         assertEquals(userId, event.getUserId());
         assertEquals(profileId, event.getProfileId());
         assertEquals(newImageUrl, event.getNewImageUrl());
         assertEquals(imageFormat, event.getImageFormat());
         assertEquals(imageWidth, event.getImageWidth());
         assertEquals(imageHeight, event.getImageHeight());
-    }
+        assertEquals(userId, event.getAggregateId());
 
-    @Test
-    @DisplayName("should create metadata with all properties")
-    void shouldCreateMetadataWithAllProperties() {
-        // When
-        ProfileImageChangedEvent event = new ProfileImageChangedEvent(userId, profileId, newImageUrl,
-                imageFormat, imageWidth, imageHeight);
-        Map<String, Object> metadata = event.getMetadata();
-
-        // Then
-        assertEquals(userId.toString(), metadata.get("userId"));
-        assertEquals(profileId.toString(), metadata.get("profileId"));
-        assertEquals(newImageUrl.toString(), metadata.get("newImageUrl"));
-        assertEquals(imageFormat, metadata.get("imageFormat"));
-        assertEquals(imageWidth, metadata.get("imageWidth"));
-        assertEquals(imageHeight, metadata.get("imageHeight"));
+        // Verify metadata
+        assertTrue(event.getMetadata().containsKey("userId"));
+        assertTrue(event.getMetadata().containsKey("profileId"));
+        assertTrue(event.getMetadata().containsKey("newImageUrl"));
+        assertTrue(event.getMetadata().containsKey("imageFormat"));
+        assertTrue(event.getMetadata().containsKey("imageWidth"));
+        assertTrue(event.getMetadata().containsKey("imageHeight"));
+        assertEquals(userId.toString(), event.getMetadata().get("userId"));
+        assertEquals(profileId.toString(), event.getMetadata().get("profileId"));
+        assertEquals(newImageUrl.toString(), event.getMetadata().get("newImageUrl"));
+        assertEquals(imageFormat, event.getMetadata().get("imageFormat"));
+        assertEquals(imageWidth, event.getMetadata().get("imageWidth"));
+        assertEquals(imageHeight, event.getMetadata().get("imageHeight"));
     }
 }
