@@ -1,4 +1,4 @@
-package com.lookbook.user.application.ports.repositories;
+package com.lookbook.user.domain.repositories;
 
 import java.util.Optional;
 

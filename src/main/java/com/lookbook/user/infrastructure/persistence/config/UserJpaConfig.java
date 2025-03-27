@@ -3,7 +3,7 @@ package com.lookbook.user.infrastructure.persistence.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.lookbook.user.application.ports.repositories.UserRepository;
+import com.lookbook.user.domain.repositories.UserRepository;
 import com.lookbook.user.infrastructure.persistence.repositories.UserJpaRepository;
 import com.lookbook.user.infrastructure.persistence.repositories.UserRepositoryAdapter;
 

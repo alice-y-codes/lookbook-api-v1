@@ -1,9 +1,9 @@
-package com.lookbook.user.application.ports.repositories;
+package com.lookbook.user.domain.repositories;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import com.lookbook.base.application.ports.repositories.EntityRepository;
+import com.lookbook.base.domain.repositories.EntityRepository;
 import com.lookbook.user.domain.aggregates.UserProfile;
 
 /**

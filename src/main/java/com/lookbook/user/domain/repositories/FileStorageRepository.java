@@ -1,10 +1,10 @@
-package com.lookbook.user.application.ports.repositories;
+package com.lookbook.user.domain.repositories;
 
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Optional;
 
-import com.lookbook.base.application.ports.repositories.BaseRepository;
+import com.lookbook.base.domain.repositories.BaseRepository;
 
 /**
  * Repository interface for managing file storage operations.

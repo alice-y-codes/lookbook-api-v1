@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lookbook.base.domain.exceptions.EntityNotFoundException;
-import com.lookbook.user.application.ports.repositories.UserRepository;
 import com.lookbook.user.application.ports.services.UserService;
 import com.lookbook.user.domain.aggregates.User;
+import com.lookbook.user.domain.repositories.UserRepository;
 import com.lookbook.user.domain.valueobjects.Email;
 import com.lookbook.user.domain.valueobjects.Username;
 

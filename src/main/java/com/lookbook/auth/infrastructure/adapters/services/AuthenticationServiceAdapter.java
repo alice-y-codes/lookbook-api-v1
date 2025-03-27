@@ -16,8 +16,8 @@ import com.lookbook.auth.application.mappers.AuthenticationMapper;
 import com.lookbook.auth.application.ports.services.AuthenticationService;
 import com.lookbook.auth.domain.services.JwtService;
 import com.lookbook.base.domain.exceptions.ValidationException;
-import com.lookbook.user.application.ports.repositories.UserRepository;
 import com.lookbook.user.domain.aggregates.User;
+import com.lookbook.user.domain.repositories.UserRepository;
 import com.lookbook.user.domain.valueobjects.Email;
 import com.lookbook.user.domain.valueobjects.Username;
 

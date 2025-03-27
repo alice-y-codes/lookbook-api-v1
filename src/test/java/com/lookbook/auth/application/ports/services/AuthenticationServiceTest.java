@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import com.lookbook.auth.domain.services.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,10 +25,11 @@ import com.lookbook.auth.application.dtos.requests.RegisterUserRequest;
 import com.lookbook.auth.application.dtos.requests.TokenRefreshRequest;
 import com.lookbook.auth.application.dtos.responses.AuthenticationResponse;
 import com.lookbook.auth.application.dtos.responses.TokenRefreshResponse;
+import com.lookbook.auth.domain.services.JwtService;
 import com.lookbook.auth.infrastructure.adapters.services.AuthenticationServiceAdapter;
 import com.lookbook.base.domain.exceptions.ValidationException;
-import com.lookbook.user.application.ports.repositories.UserRepository;
 import com.lookbook.user.domain.aggregates.User;
+import com.lookbook.user.domain.repositories.UserRepository;
 import com.lookbook.user.domain.valueobjects.Email;
 import com.lookbook.user.domain.valueobjects.Username;
 

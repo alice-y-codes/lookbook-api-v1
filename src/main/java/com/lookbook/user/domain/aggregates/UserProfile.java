@@ -1,4 +1,4 @@
-package com.lookbook.user.domain;
+package com.lookbook.user.domain.aggregates;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
