@@ -10,7 +10,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
+
+import com.lookbook.auth.infrastructure.config.JwtConfig;
 
 class JwtServiceAdapterTest {
 
@@ -22,13 +23,16 @@ class JwtServiceAdapterTest {
 
     @BeforeEach
     void setUp() {
-        jwtService = new JwtServiceAdapter();
+        // Create JwtConfig with test values
+        JwtConfig jwtConfig = new JwtConfig();
+        jwtConfig.setSecretKey(SECRET_KEY);
+        jwtConfig.setExpiration(JWT_EXPIRATION);
+        JwtConfig.RefreshToken refreshToken = new JwtConfig.RefreshToken();
+        refreshToken.setExpiration(REFRESH_EXPIRATION);
+        jwtConfig.setRefreshToken(refreshToken);
 
-        // Set the properties using ReflectionTestUtils since we don't have Spring
-        // context in unit tests
-        ReflectionTestUtils.setField(jwtService, "secretKey", SECRET_KEY);
-        ReflectionTestUtils.setField(jwtService, "jwtExpiration", JWT_EXPIRATION);
-        ReflectionTestUtils.setField(jwtService, "refreshExpiration", REFRESH_EXPIRATION);
+        // Create JwtServiceAdapter with the config
+        jwtService = new JwtServiceAdapter(jwtConfig);
     }
 
     @Test

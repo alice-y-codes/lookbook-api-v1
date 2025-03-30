@@ -3,6 +3,7 @@ package com.lookbook.user.domain.valueobjects;
 import java.net.URI;
 import java.util.Objects;
 
+import com.lookbook.base.domain.exceptions.ValidationException;
 import com.lookbook.base.domain.validation.ValidationResult;
 import com.lookbook.base.domain.valueobjects.BaseValueObject;
 
@@ -46,7 +47,43 @@ public class ProfileImage extends BaseValueObject<ProfileImage> {
      * @throws ValidationException if any parameter is invalid
      */
     public static ProfileImage of(URI url, int width, int height, String format, long sizeBytes) {
-        return new ProfileImage(url, width, height, format, sizeBytes);
+        if (url == null) {
+            throw new ValidationException("Profile image URL cannot be null");
+        }
+
+        if (width < MIN_WIDTH || width > MAX_WIDTH) {
+            throw new ValidationException(
+                    String.format("Image width must be between %d and %d pixels", MIN_WIDTH, MAX_WIDTH));
+        }
+
+        if (height < MIN_HEIGHT || height > MAX_HEIGHT) {
+            throw new ValidationException(
+                    String.format("Image height must be between %d and %d pixels", MIN_HEIGHT, MAX_HEIGHT));
+        }
+
+        if (format == null || format.trim().isEmpty()) {
+            throw new ValidationException("Image format cannot be empty");
+        }
+
+        String trimmedFormat = format.trim().toLowerCase();
+        boolean validFormat = false;
+        for (String allowedFormat : ALLOWED_FORMATS) {
+            if (trimmedFormat.equals(allowedFormat)) {
+                validFormat = true;
+                break;
+            }
+        }
+        if (!validFormat) {
+            throw new ValidationException(
+                    String.format("Image format must be one of: %s", String.join(", ", ALLOWED_FORMATS)));
+        }
+
+        if (sizeBytes <= 0 || sizeBytes > MAX_SIZE_BYTES) {
+            throw new ValidationException(
+                    String.format("Image size must be between 1 and %d bytes", MAX_SIZE_BYTES));
+        }
+
+        return new ProfileImage(url, width, height, trimmedFormat, sizeBytes);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.lookbook.user.domain.valueobjects;
 
+import com.lookbook.base.domain.exceptions.ValidationException;
 import com.lookbook.base.domain.validation.ValidationResult;
 import com.lookbook.base.domain.valueobjects.BaseValueObject;
 
@@ -27,7 +28,17 @@ public class Biography extends BaseValueObject<Biography> {
      * @throws ValidationException if the value is invalid
      */
     public static Biography of(String value) {
-        return new Biography(value);
+        if (value == null || value.trim().isEmpty()) {
+            throw new ValidationException("Biography cannot be empty");
+        }
+
+        String trimmedValue = value.trim();
+        if (trimmedValue.length() < MIN_LENGTH || trimmedValue.length() > MAX_LENGTH) {
+            throw new ValidationException(
+                    String.format("Biography must be between %d and %d characters", MIN_LENGTH, MAX_LENGTH));
+        }
+
+        return new Biography(trimmedValue);
     }
 
     /**

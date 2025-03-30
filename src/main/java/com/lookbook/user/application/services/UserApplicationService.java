@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class UserApplicationService {
+public class UserApplicationService implements IUserApplicationService {
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
 

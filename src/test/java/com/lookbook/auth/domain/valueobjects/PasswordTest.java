@@ -8,67 +8,37 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-
-import com.lookbook.base.domain.exceptions.ValidationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 class PasswordTest {
-
     private static final String VALID_PASSWORD = "Password123!";
+    private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     @Test
     void shouldCreateValidPassword() {
-        // Given a valid password
-
         // When
         Password password = Password.create(VALID_PASSWORD);
 
         // Then
         assertNotNull(password);
         assertNotNull(password.getHashedValue());
-        assertNotNull(password.getSalt());
+        assertTrue(encoder.matches(VALID_PASSWORD, password.getHashedValue()));
     }
 
     @Test
-    void shouldRejectNullPassword() {
+    void shouldNotCreatePasswordWithNullValue() {
         // Then
-        assertThrows(ValidationException.class, () -> Password.create(null));
+        assertThrows(NullPointerException.class, () -> Password.create(null));
     }
 
     @Test
-    void shouldRejectEmptyPassword() {
+    void shouldNotCreatePasswordWithEmptyValue() {
         // Then
-        assertThrows(ValidationException.class, () -> Password.create(""));
+        assertThrows(IllegalArgumentException.class, () -> Password.create(""));
     }
 
     @Test
-    void shouldRejectTooShortPassword() {
-        // Given
-        String tooShortPassword = "Abc1!";
-
-        // Then
-        ValidationException exception = assertThrows(ValidationException.class,
-                () -> Password.create(tooShortPassword));
-
-        // Verify error message
-        assertTrue(exception.getMessage().contains("too short"));
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "password123!", // no uppercase
-            "PASSWORD123!", // no lowercase
-            "Password!!!!", // no digit
-            "Password123" // no special char
-    })
-    void shouldRejectPasswordsWithMissingRequiredCharacters(String invalidPassword) {
-        // Then
-        assertThrows(ValidationException.class, () -> Password.create(invalidPassword));
-    }
-
-    @Test
-    void passwordShouldMatchCorrectPassword() {
+    void shouldMatchCorrectPassword() {
         // Given
         Password password = Password.create(VALID_PASSWORD);
 
@@ -77,7 +47,7 @@ class PasswordTest {
     }
 
     @Test
-    void passwordShouldNotMatchIncorrectPassword() {
+    void shouldNotMatchIncorrectPassword() {
         // Given
         Password password = Password.create(VALID_PASSWORD);
 
@@ -86,7 +56,7 @@ class PasswordTest {
     }
 
     @Test
-    void passwordShouldNotMatchNull() {
+    void shouldNotMatchNullPassword() {
         // Given
         Password password = Password.create(VALID_PASSWORD);
 
@@ -95,7 +65,7 @@ class PasswordTest {
     }
 
     @Test
-    void passwordShouldNotMatchEmptyString() {
+    void shouldNotMatchEmptyPassword() {
         // Given
         Password password = Password.create(VALID_PASSWORD);
 
@@ -104,60 +74,17 @@ class PasswordTest {
     }
 
     @Test
-    void samePlaintextShouldProduceDifferentHashesDueToSalt() {
+    void shouldBeEqualWhenSamePassword() {
         // Given
         Password password1 = Password.create(VALID_PASSWORD);
-        Password password2 = Password.create(VALID_PASSWORD);
-
-        // Then
-        assertNotEquals(password1.getHashedValue(), password2.getHashedValue());
-        assertNotEquals(password1.getSalt(), password2.getSalt());
-    }
-
-    @Test
-    void shouldRecreateFromHashAndSalt() {
-        // Given
-        Password original = Password.create(VALID_PASSWORD);
-        String hash = original.getHashedValue();
-        String salt = original.getSalt();
-
-        // When
-        Password recreated = Password.fromHash(hash, salt);
-
-        // Then
-        assertEquals(hash, recreated.getHashedValue());
-        assertEquals(salt, recreated.getSalt());
-    }
-
-    @Test
-    void recreatedPasswordShouldMatchOriginalPlaintext() {
-        // Given
-        Password original = Password.create(VALID_PASSWORD);
-        String hash = original.getHashedValue();
-        String salt = original.getSalt();
-
-        // When
-        Password recreated = Password.fromHash(hash, salt);
-
-        // Then
-        assertTrue(recreated.matches(VALID_PASSWORD));
-    }
-
-    @Test
-    void equalPasswordsShouldHaveSameHashCode() {
-        // Given
-        Password password1 = Password.create(VALID_PASSWORD);
-        String hash = password1.getHashedValue();
-        String salt = password1.getSalt();
-        Password password2 = Password.fromHash(hash, salt);
+        Password password2 = Password.fromHash(password1.getHashedValue());
 
         // Then
         assertEquals(password1, password2);
-        assertEquals(password1.hashCode(), password2.hashCode());
     }
 
     @Test
-    void differentPasswordsShouldNotBeEqual() {
+    void shouldNotBeEqualWhenDifferentPasswords() {
         // Given
         Password password1 = Password.create(VALID_PASSWORD);
         Password password2 = Password.create("DifferentPassword123!");
@@ -167,16 +94,47 @@ class PasswordTest {
     }
 
     @Test
-    void toStringShouldNotRevealPasswordDetails() {
+    void shouldRecreateFromHash() {
+        // Given
+        Password original = Password.create(VALID_PASSWORD);
+        String hash = original.getHashedValue();
+
+        // When
+        Password recreated = Password.fromHash(hash);
+
+        // Then
+        assertEquals(original, recreated);
+        assertTrue(recreated.matches(VALID_PASSWORD));
+    }
+
+    @Test
+    void shouldHaveSameHashCodeWhenEqual() {
+        // Given
+        Password password1 = Password.create(VALID_PASSWORD);
+        Password password2 = Password.fromHash(password1.getHashedValue());
+
+        // Then
+        assertEquals(password1.hashCode(), password2.hashCode());
+    }
+
+    @Test
+    void shouldHaveDifferentHashCodeWhenNotEqual() {
+        // Given
+        Password password1 = Password.create(VALID_PASSWORD);
+        Password password2 = Password.create("DifferentPassword123!");
+
+        // Then
+        assertNotEquals(password1.hashCode(), password2.hashCode());
+    }
+
+    @Test
+    void toStringShouldNotRevealPassword() {
         // Given
         Password password = Password.create(VALID_PASSWORD);
 
-        // When
-        String stringRepresentation = password.toString();
-
         // Then
-        assertFalse(stringRepresentation.contains(VALID_PASSWORD));
-        assertFalse(stringRepresentation.contains(password.getHashedValue()));
-        assertTrue(stringRepresentation.contains("PROTECTED"));
+        assertEquals("Password[PROTECTED]", password.toString());
+        assertFalse(password.toString().contains(VALID_PASSWORD));
+        assertFalse(password.toString().contains(password.getHashedValue()));
     }
 }

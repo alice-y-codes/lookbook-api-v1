@@ -18,4 +18,12 @@ public interface ProfileRepository extends EntityRepository<UserProfile> {
      * @return The profile if found
      */
     Optional<UserProfile> findByUserId(UUID userId);
+
+    /**
+     * Finds a profile by username.
+     *
+     * @param username The username
+     * @return The profile if found
+     */
+    Optional<UserProfile> findByUsername(String username);
 }

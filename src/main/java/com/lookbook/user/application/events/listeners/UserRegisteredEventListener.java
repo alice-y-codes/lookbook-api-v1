@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lookbook.user.application.events.CreateUserProfileEvent;
-import com.lookbook.user.application.services.ProfileService;
+import com.lookbook.user.application.ports.services.ProfileService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

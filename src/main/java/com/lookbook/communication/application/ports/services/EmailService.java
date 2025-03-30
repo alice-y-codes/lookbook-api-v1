@@ -1,4 +1,4 @@
-package com.lookbook.communication.infrastructure.services;
+package com.lookbook.communication.application.ports.services;
 
 import java.util.Map;
 

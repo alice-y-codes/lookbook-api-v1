@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import com.lookbook.base.domain.exceptions.ValidationException;
+
 @DisplayName("Biography")
 class BiographyTest {
 
@@ -24,24 +26,38 @@ class BiographyTest {
             "", // empty
             " ", // whitespace
             "Too short", // too short
-            "This biography is way too long. This biography is way too long. This biography is way too long. This biography is way too long. This biography is way too long. This biography is way too long. This biography is way too long. This biography is way too long. This biography is way too long. This biography is way too long." // too
-                                                                                                                                                                                                                                                                                                                                              // long
+            "This biography is way too long. This biography is way too long. This biography is way too long. " +
+                    "This biography is way too long. This biography is way too long. This biography is way too long. " +
+                    "This biography is way too long. This biography is way too long. This biography is way too long. " +
+                    "This biography is way too long. This biography is way too long. This biography is way too long." // too
+                                                                                                                      // long
     })
     @DisplayName("should reject invalid biographies")
     void shouldRejectInvalidBiographies(String invalidBio) {
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        ValidationException exception = assertThrows(
+                ValidationException.class,
                 () -> Biography.of(invalidBio));
-        assertTrue(exception.getMessage().contains("Biography"));
+
+        String errorMessage = exception.getMessage();
+        if (invalidBio == null || invalidBio.trim().isEmpty()) {
+            assertTrue(errorMessage.contains("Biography cannot be empty"),
+                    "Expected error message to contain 'Biography cannot be empty' but got: " + errorMessage);
+        } else if (invalidBio.length() < 10) {
+            assertTrue(errorMessage.contains("Biography must be between 10 and 500 characters"),
+                    "Expected error message to contain length validation message but got: " + errorMessage);
+        } else {
+            assertTrue(errorMessage.contains("Biography must be between 10 and 500 characters"),
+                    "Expected error message to contain length validation message but got: " + errorMessage);
+        }
     }
 
     @Test
     @DisplayName("should reject null biography")
     void shouldRejectNullBiography() {
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        ValidationException exception = assertThrows(
+                ValidationException.class,
                 () -> Biography.of(null));
-        assertTrue(exception.getMessage().contains("Biography"));
+        assertTrue(exception.getMessage().contains("Biography cannot be empty"));
     }
 
     @Test

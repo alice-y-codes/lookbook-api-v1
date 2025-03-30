@@ -1,12 +1,14 @@
-package com.lookbook.user.application.services;
+package com.lookbook.user.infrastructure.adapters.services;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lookbook.base.domain.exceptions.ValidationException;
+import com.lookbook.user.application.ports.services.ProfileService;
 import com.lookbook.user.domain.aggregates.UserProfile;
 import com.lookbook.user.domain.repositories.ProfileRepository;
 import com.lookbook.user.domain.valueobjects.Biography;
@@ -16,22 +18,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Application service for handling profile-related operations.
+ * Adapter implementation of the ProfileService interface.
  */
 @Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ProfileService {
+public class ProfileServiceAdapter implements ProfileService {
     private final ProfileRepository profileRepository;
 
-    /**
-     * Creates a new profile for a user.
-     *
-     * @param userId   The user's ID
-     * @param username The username to use as initial display name
-     * @return The created profile
-     */
+    @Override
     public UserProfile createProfile(UUID userId, String username) {
         try {
             log.info("Creating profile for user: {}", userId);
@@ -54,14 +50,7 @@ public class ProfileService {
         }
     }
 
-    /**
-     * Updates a user's profile.
-     *
-     * @param userId      The user's ID
-     * @param displayName The new display name
-     * @param biography   The new biography
-     * @return The updated profile
-     */
+    @Override
     public UserProfile updateProfile(UUID userId, String displayName, String biography) {
         UserProfile profile = profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ValidationException("Profile not found for user: " + userId));
@@ -70,5 +59,10 @@ public class ProfileService {
         profile.updateBiography(Biography.of(biography), LocalDateTime.now());
 
         return profileRepository.save(profile);
+    }
+
+    @Override
+    public Optional<UserProfile> findByUsername(String username) {
+        return profileRepository.findByUsername(username);
     }
 }

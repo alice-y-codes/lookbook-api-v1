@@ -11,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -28,6 +29,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
  */
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
@@ -54,9 +56,29 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/refresh",
-                                "/v3/api-docs/**", "/swagger-ui/**", "/api/v1/health/**")
-                        .permitAll()
+                        // Public endpoints
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+
+                        // Read-only endpoints accessible to all authenticated users
+                        .requestMatchers(
+                                "/api/v1/users/me",
+                                "/api/v1/users/{id}",
+                                "/api/v1/users")
+                        .hasAnyRole("USER", "PENDING_USER")
+
+                        // Write endpoints restricted to active users only
+                        .requestMatchers(
+                                "/api/v1/users/{id}/email",
+                                "/api/v1/users/{id}/password")
+                        .hasRole("USER")
+
+                        // Admin endpoints
+                        .requestMatchers(
+                                "/api/v1/users/{id}/activate",
+                                "/api/v1/users/{id}/deactivate")
+                        .hasRole("ADMIN")
+
+                        // All other endpoints require authentication
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(jwtAuthEntryPoint)

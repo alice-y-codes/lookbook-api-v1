@@ -7,30 +7,27 @@ import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.lookbook.auth.domain.services.JwtService;
+import com.lookbook.auth.infrastructure.config.JwtConfig;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Adapter implementation of the JwtService interface for JWT token operations.
  */
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class JwtServiceAdapter implements JwtService {
 
-    @Value("${application.security.jwt.secret-key}")
-    private String secretKey;
-
-    @Value("${application.security.jwt.expiration}")
-    private long jwtExpiration;
-
-    @Value("${application.security.jwt.refresh-token.expiration}")
-    private long refreshExpiration;
+    private final JwtConfig jwtConfig;
 
     @Override
     public String extractUsername(String token) {
@@ -50,12 +47,12 @@ public class JwtServiceAdapter implements JwtService {
 
     @Override
     public String generateToken(Map<String, Object> extraClaims, String username) {
-        return buildToken(extraClaims, username, jwtExpiration);
+        return buildToken(extraClaims, username, jwtConfig.getExpiration());
     }
 
     @Override
     public String generateRefreshToken(String username) {
-        return buildToken(new HashMap<>(), username, refreshExpiration);
+        return buildToken(new HashMap<>(), username, jwtConfig.getRefreshToken().getExpiration());
     }
 
     @Override
@@ -97,7 +94,7 @@ public class JwtServiceAdapter implements JwtService {
     }
 
     private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes = Decoders.BASE64.decode(jwtConfig.getSecretKey());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

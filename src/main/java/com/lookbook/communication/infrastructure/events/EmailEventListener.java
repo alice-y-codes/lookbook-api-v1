@@ -5,7 +5,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.lookbook.communication.application.events.SendEmailEvent;
-import com.lookbook.communication.infrastructure.services.EmailService;
+import com.lookbook.communication.application.ports.services.EmailService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

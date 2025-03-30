@@ -16,6 +16,7 @@ import com.lookbook.auth.application.mappers.AuthenticationMapper;
 import com.lookbook.auth.application.ports.services.AuthenticationService;
 import com.lookbook.auth.domain.services.JwtService;
 import com.lookbook.base.domain.exceptions.ValidationException;
+import com.lookbook.user.application.ports.services.ProfileService;
 import com.lookbook.user.domain.aggregates.User;
 import com.lookbook.user.domain.repositories.UserRepository;
 import com.lookbook.user.domain.valueobjects.Email;
@@ -31,16 +32,19 @@ public class AuthenticationServiceAdapter implements AuthenticationService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final ProfileService profileService;
 
     public AuthenticationServiceAdapter(
             UserRepository userRepository,
             JwtService jwtService,
             PasswordEncoder passwordEncoder,
-            AuthenticationManager authenticationManager) {
+            AuthenticationManager authenticationManager,
+            ProfileService profileService) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.profileService = profileService;
     }
 
     @Override
@@ -63,6 +67,9 @@ public class AuthenticationServiceAdapter implements AuthenticationService {
         // Save the user
         user = userRepository.save(user);
 
+        // Create profile for the user
+        profileService.createProfile(user.getId(), user.getUsername().getValue());
+
         // Generate tokens
         String accessToken = jwtService.generateToken(user.getUsername().getValue());
         String refreshToken = jwtService.generateRefreshToken(user.getUsername().getValue());
@@ -82,10 +89,18 @@ public class AuthenticationServiceAdapter implements AuthenticationService {
                         request.usernameOrEmail(),
                         request.password()));
 
-        // Find the user
+        // Try to find the user by username first, then by email
         Username username = Username.of(request.usernameOrEmail());
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ValidationException("User not found"));
+                .orElseGet(() -> {
+                    try {
+                        Email email = Email.of(request.usernameOrEmail());
+                        return userRepository.findByEmail(email)
+                                .orElseThrow(() -> new ValidationException("User not found"));
+                    } catch (IllegalArgumentException e) {
+                        throw new ValidationException("Invalid username or email format");
+                    }
+                });
 
         // Generate tokens
         String accessToken = jwtService.generateToken(user.getUsername().getValue());

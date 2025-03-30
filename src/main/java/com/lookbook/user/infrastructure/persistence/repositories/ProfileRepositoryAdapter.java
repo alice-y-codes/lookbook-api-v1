@@ -35,6 +35,12 @@ public class ProfileRepositoryAdapter extends JpaEntityRepositoryAdapter<UserPro
     }
 
     @Override
+    public Optional<UserProfile> findByUsername(String username) {
+        return profileRepository.findByUsername(username)
+                .map(this::mapToEntity);
+    }
+
+    @Override
     protected UserProfile mapToEntity(JpaProfile jpaEntity) {
         return UserProfile.reconstitute(
                 jpaEntity.getId(),

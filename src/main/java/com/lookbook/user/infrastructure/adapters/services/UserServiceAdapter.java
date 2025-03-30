@@ -91,4 +91,5 @@ public class UserServiceAdapter implements UserService {
         user.changePassword(currentPassword, newPassword);
         return userRepository.save(user);
     }
+
 }

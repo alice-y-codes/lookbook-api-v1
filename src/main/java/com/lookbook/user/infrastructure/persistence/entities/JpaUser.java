@@ -10,6 +10,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 /**
@@ -18,7 +19,11 @@ import jakarta.persistence.Table;
  * clean.
  */
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+        @Index(name = "idx_users_username", columnList = "username"),
+        @Index(name = "idx_users_email", columnList = "email"),
+        @Index(name = "idx_users_status", columnList = "status")
+})
 public class JpaUser extends JpaBaseEntity {
 
     @Column(name = "username", nullable = false, unique = true)
@@ -29,9 +34,6 @@ public class JpaUser extends JpaBaseEntity {
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
-
-    @Column(name = "password_salt", nullable = false)
-    private String passwordSalt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -54,7 +56,6 @@ public class JpaUser extends JpaBaseEntity {
         this.username = user.getUsername().getValue();
         this.email = user.getEmail().getValue();
         this.passwordHash = user.getHashedPassword();
-        this.passwordSalt = user.getPasswordSalt();
         this.status = user.getStatus();
     }
 
@@ -69,7 +70,6 @@ public class JpaUser extends JpaBaseEntity {
                 Username.of(username),
                 Email.of(email),
                 passwordHash,
-                passwordSalt,
                 status,
                 getCreatedAt(),
                 getUpdatedAt());
@@ -89,10 +89,6 @@ public class JpaUser extends JpaBaseEntity {
         return passwordHash;
     }
 
-    public String getPasswordSalt() {
-        return passwordSalt;
-    }
-
     public UserStatus getStatus() {
         return status;
     }
@@ -107,10 +103,6 @@ public class JpaUser extends JpaBaseEntity {
 
     protected void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
-    }
-
-    protected void setPasswordSalt(String passwordSalt) {
-        this.passwordSalt = passwordSalt;
     }
 
     protected void setStatus(UserStatus status) {

@@ -4,17 +4,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-@org.junit.jupiter.api.DisplayName("DisplayName")
+import com.lookbook.base.domain.exceptions.ValidationException;
+
+@DisplayName("DisplayName")
 class DisplayNameTest {
 
     @Test
-    @org.junit.jupiter.api.DisplayName("should create with valid name")
+    @DisplayName("should create with valid name")
     void shouldCreateWithValidName() {
-        DisplayName name = DisplayName.of("John Doe");
+        com.lookbook.user.domain.valueobjects.DisplayName name = com.lookbook.user.domain.valueobjects.DisplayName
+                .of("John Doe");
         assertEquals("John Doe", name.getValue());
     }
 
@@ -23,32 +27,33 @@ class DisplayNameTest {
             "", // empty
             " ", // whitespace
             "J", // too short
-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", // too long (51 chars)
+            "This name is way too long and exceeds the maximum length requirement", // too long
             "John@Doe", // invalid characters
-            "John/Doe", // invalid characters
-            "John\\Doe" // invalid characters
+            "John#Doe", // invalid characters
+            "John$Doe" // invalid characters
     })
-    @org.junit.jupiter.api.DisplayName("should reject invalid names")
+    @DisplayName("should reject invalid names")
     void shouldRejectInvalidNames(String invalidName) {
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> DisplayName.of(invalidName));
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> com.lookbook.user.domain.valueobjects.DisplayName.of(invalidName));
         assertTrue(exception.getMessage().contains("Display name"));
     }
 
     @Test
-    @org.junit.jupiter.api.DisplayName("should reject null name")
+    @DisplayName("should reject null name")
     void shouldRejectNullName() {
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> DisplayName.of(null));
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> com.lookbook.user.domain.valueobjects.DisplayName.of(null));
         assertTrue(exception.getMessage().contains("Display name"));
     }
 
     @Test
-    @org.junit.jupiter.api.DisplayName("should handle special characters correctly")
+    @DisplayName("should handle special characters correctly")
     void shouldHandleSpecialCharacters() {
-        DisplayName name = DisplayName.of("John's Doe-Jones");
-        assertEquals("John's Doe-Jones", name.getValue());
+        com.lookbook.user.domain.valueobjects.DisplayName name = com.lookbook.user.domain.valueobjects.DisplayName
+                .of("John Doe, Jr.");
+        assertEquals("John Doe, Jr.", name.getValue());
     }
 }

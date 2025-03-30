@@ -1,8 +1,10 @@
-package com.lookbook.communication.infrastructure.services;
+package com.lookbook.communication.infrastructure.adapters;
 
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+
+import com.lookbook.communication.application.ports.services.EmailService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-public class EmailServiceImpl implements EmailService {
+public class EmailServiceAdapter implements EmailService {
 
     @Override
     public void sendEmail(String to, String subject, String template, Map<String, Object> templateData) {
