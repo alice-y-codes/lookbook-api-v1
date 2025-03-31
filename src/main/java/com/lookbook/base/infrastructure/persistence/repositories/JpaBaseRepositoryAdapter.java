@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.lookbook.base.application.ports.repositories.BaseRepository;
+import com.lookbook.base.domain.repositories.BaseRepository;
 import com.lookbook.base.domain.entities.BaseEntity;
 
 public class JpaBaseRepositoryAdapter<T extends BaseEntity> implements BaseRepository<T> {

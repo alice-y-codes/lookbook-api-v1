@@ -17,8 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import com.lookbook.user.application.ports.repositories.UserRepository;
 import com.lookbook.user.domain.aggregates.User;
+import com.lookbook.user.domain.repositories.UserRepository;
 import com.lookbook.user.domain.valueobjects.Username;
 
 @ExtendWith(MockitoExtension.class)
@@ -109,14 +109,18 @@ class CustomUserDetailsServiceTest {
     }
 
     @Test
-    void loadUserByUsername_ShouldThrowException_WhenUserIsNotActive() {
+    void loadUserByUsername_ShouldReturnPendingUserDetails_WhenUserIsNotActive() {
         // Mock repository to return the inactive user
         when(userRepository.findByUsername(any(Username.class))).thenReturn(Optional.of(inactiveUser));
 
-        // Verify that the service throws the expected exception
-        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class,
-                () -> userDetailsService.loadUserByUsername(INACTIVE_USERNAME));
+        // Call the service method
+        UserDetails userDetails = userDetailsService.loadUserByUsername(INACTIVE_USERNAME);
 
-        assertTrue(exception.getMessage().contains("not active"));
+        // Verify the response
+        assertNotNull(userDetails);
+        assertEquals(INACTIVE_USERNAME, userDetails.getUsername());
+        assertEquals(inactiveUser.getHashedPassword(), userDetails.getPassword());
+        assertTrue(userDetails.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_PENDING_USER")));
     }
 }

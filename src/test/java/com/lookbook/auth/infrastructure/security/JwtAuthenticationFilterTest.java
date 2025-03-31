@@ -23,7 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import com.lookbook.auth.application.ports.services.JwtService;
+import com.lookbook.auth.domain.services.JwtService;
 import com.lookbook.user.domain.aggregates.User;
 
 import jakarta.servlet.FilterChain;

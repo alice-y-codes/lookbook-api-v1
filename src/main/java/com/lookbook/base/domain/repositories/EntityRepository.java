@@ -1,4 +1,4 @@
-package com.lookbook.base.application.ports.repositories;
+package com.lookbook.base.domain.repositories;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,8 +1,8 @@
-package com.lookbook.user.application.ports.repositories;
+package com.lookbook.user.domain.repositories;
 
 import java.util.Optional;
 
-import com.lookbook.base.application.ports.repositories.EntityRepository;
+import com.lookbook.base.domain.repositories.EntityRepository;
 import com.lookbook.user.domain.aggregates.User;
 import com.lookbook.user.domain.valueobjects.Email;
 import com.lookbook.user.domain.valueobjects.Username;

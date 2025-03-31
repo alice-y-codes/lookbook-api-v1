@@ -162,29 +162,25 @@ The application layer orchestrates the domain layer and implements use cases:
      ```java
      // com.lookbook.comment.application.services.CommentService.java
      @Service
+     @Transactional
      public class CommentService {
          private final CommentRepository commentRepository;
-         private final CommentMapper commentMapper;
-         private final CommentDomainService domainService;
+         private final ApplicationEventPublisher eventPublisher;
          
          public CommentService(CommentRepository commentRepository, 
-                            CommentMapper commentMapper,
-                            CommentDomainService domainService) {
+                            ApplicationEventPublisher eventPublisher) {
              this.commentRepository = commentRepository;
-             this.commentMapper = commentMapper;
-             this.domainService = domainService;
+             this.eventPublisher = eventPublisher;
          }
          
-         @Transactional
          public CommentResponse createComment(CreateCommentRequest request) {
-             Comment comment = commentMapper.toDomain(request);
-             
-             if (!domainService.validateComment(comment)) {
-                 throw new ValidationException("Invalid comment content");
-             }
-             
-             Comment savedComment = commentRepository.save(comment);
-             return commentMapper.toResponse(savedComment);
+             Comment comment = commentRepository.save(commentMapper.toDomain(request));
+             eventPublisher.publishEvent(new NotifyCommentCreatedEvent(
+                 comment.getId(),
+                 comment.getAuthorId(),
+                 comment.getTargetId()
+             ));
+             return commentMapper.toResponse(comment);
          }
          
          // Other methods for listing, updating, deleting comments
@@ -205,7 +201,7 @@ The application layer orchestrates the domain layer and implements use cases:
          private CommentMapper commentMapper;
          
          @Mock
-         private CommentDomainService domainService;
+         private ApplicationEventPublisher eventPublisher;
          
          @InjectMocks
          private CommentService commentService;
@@ -648,15 +644,25 @@ Here's a condensed example of adding a comment feature:
    ```java
    // CommentService.java
    @Service
+   @Transactional
    public class CommentService {
        private final CommentRepository commentRepository;
+       private final ApplicationEventPublisher eventPublisher;
        
-       // Methods...
+       public CommentService(CommentRepository commentRepository, 
+                          ApplicationEventPublisher eventPublisher) {
+           this.commentRepository = commentRepository;
+           this.eventPublisher = eventPublisher;
+       }
        
        public CommentResponse createComment(CreateCommentRequest request) {
-           Comment comment = commentMapper.toDomain(request);
-           Comment savedComment = commentRepository.save(comment);
-           return commentMapper.toResponse(savedComment);
+           Comment comment = commentRepository.save(commentMapper.toDomain(request));
+           eventPublisher.publishEvent(new NotifyCommentCreatedEvent(
+               comment.getId(),
+               comment.getAuthorId(),
+               comment.getTargetId()
+           ));
+           return commentMapper.toResponse(comment);
        }
    }
    ```

@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.lookbook.user.application.ports.repositories.UserRepository;
 import com.lookbook.user.domain.aggregates.User;
+import com.lookbook.user.domain.repositories.UserRepository;
 
 /**
  * Contract test for UserRepository interface.

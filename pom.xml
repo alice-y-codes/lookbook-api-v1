@@ -132,6 +132,14 @@
             <version>2.25.4</version>
         </dependency>
 
+        <!-- TODO: AWS SDK for S3 support - uncomment when needed
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-s3</artifactId>
+            <version>1.12.261</version>
+        </dependency>
+        -->
+
         <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>

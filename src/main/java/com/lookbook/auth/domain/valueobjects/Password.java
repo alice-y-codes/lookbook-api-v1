@@ -30,7 +30,6 @@ public class Password extends BaseValueObject<Password> {
     private static final Pattern DIGIT_PATTERN = Pattern.compile(HAS_DIGIT);
     private static final Pattern SPECIAL_PATTERN = Pattern.compile(HAS_SPECIAL);
 
-    private static final String ERROR_EMPTY = "Password cannot be empty";
     private static final String ERROR_TOO_SHORT = "Password is too short (minimum is " + MIN_LENGTH + " characters)";
     private static final String ERROR_TOO_LONG = "Password is too long (maximum is " + MAX_LENGTH + " characters)";
     private static final String ERROR_NO_LOWERCASE = "Password must contain at least one lowercase letter";
@@ -53,7 +52,7 @@ public class Password extends BaseValueObject<Password> {
         this.rawPassword = null;
         this.hashedValue = hashedValue;
         if (!preHashed) {
-            validateSelf(); // Only validate for new passwords
+            validateSelf();
         }
     }
 
@@ -70,14 +69,6 @@ public class Password extends BaseValueObject<Password> {
         validateSelf(); // Validate after initialization
     }
 
-    /**
-     * Factory method to create a Password value object from a plaintext password.
-     * This should be used when creating a new password.
-     *
-     * @param rawPassword The plaintext password to hash and store
-     * @return A new Password value object
-     * @throws ValidationException if the password is invalid
-     */
     public static Password create(String rawPassword) {
         return new Password(rawPassword);
     }
@@ -94,19 +85,9 @@ public class Password extends BaseValueObject<Password> {
         return new Password(hashedPassword, true);
     }
 
-    /**
-     * Validates this password according to strength rules.
-     * Note: This only validates the raw password during creation.
-     *
-     * @return ValidationResult with any errors found
-     */
     @Override
     public ValidationResult validate() {
         ValidationResult result = ValidationResult.valid();
-
-        if (rawPassword == null || rawPassword.isEmpty()) {
-            return result.addError(ERROR_EMPTY);
-        }
 
         if (rawPassword.length() < MIN_LENGTH) {
             result = result.addError(ERROR_TOO_SHORT);
@@ -135,12 +116,6 @@ public class Password extends BaseValueObject<Password> {
         return result;
     }
 
-    /**
-     * Checks if the provided plaintext password matches this hashed password.
-     *
-     * @param plainTextPassword The plaintext password to check
-     * @return true if the password matches, false otherwise
-     */
     public boolean matches(String plainTextPassword) {
         if (plainTextPassword == null || plainTextPassword.isEmpty()) {
             return false;
@@ -182,7 +157,6 @@ public class Password extends BaseValueObject<Password> {
 
     @Override
     public String toString() {
-        // Never reveal the actual password hash in toString
         return "Password[PROTECTED]";
     }
 }

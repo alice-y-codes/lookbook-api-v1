@@ -89,9 +89,11 @@ public class User extends BaseEntity {
 
         User user = new User(usernameVO, emailVO, passwordVO);
 
-        // Raise domain event
-        // In a real application, you would publish this event
-        new UserRegisteredEvent(user.getId(), user.getUsername().getValue(), user.getEmail().getValue());
+        // Add domain event
+        user.addDomainEvent(new UserRegisteredEvent(
+                user.getId(),
+                user.getUsername().getValue(),
+                user.getEmail().getValue()));
 
         return user;
     }
@@ -126,8 +128,8 @@ public class User extends BaseEntity {
             status = status.transitionTo(UserStatus.ACTIVE);
             markUpdated();
 
-            // Raise domain event
-            new UserActivatedEvent(getId(), getUsername().getValue());
+            // Add domain event
+            addDomainEvent(new UserActivatedEvent(getId(), getUsername().getValue()));
         }
     }
 
@@ -140,8 +142,8 @@ public class User extends BaseEntity {
             status = status.transitionTo(UserStatus.INACTIVE);
             markUpdated();
 
-            // Raise domain event
-            new UserDeactivatedEvent(getId(), getUsername().getValue());
+            // Add domain event
+            addDomainEvent(new UserDeactivatedEvent(getId(), getUsername().getValue()));
         }
     }
 
@@ -160,8 +162,8 @@ public class User extends BaseEntity {
         this.password = Password.create(newPassword);
         markUpdated();
 
-        // Raise domain event
-        new PasswordChangedEvent(getId(), getUsername().getValue());
+        // Add domain event
+        addDomainEvent(new PasswordChangedEvent(getId(), getUsername().getValue()));
     }
 
     /**

@@ -9,20 +9,26 @@ import java.util.UUID;
  * Domain events represent something significant that happened in the domain.
  */
 public interface DomainEvent {
-
     /**
-     * Gets the unique identifier for this event instance.
+     * Gets the unique identifier of the event.
      *
-     * @return The event ID
+     * @return The event's UUID
      */
     UUID getEventId();
 
     /**
      * Gets when the event occurred.
      *
-     * @return The timestamp when the event occurred
+     * @return The timestamp of the event
      */
     LocalDateTime getOccurredAt();
+
+    /**
+     * Gets the ID of the aggregate root that generated this event.
+     *
+     * @return The aggregate root's UUID
+     */
+    UUID getAggregateId();
 
     /**
      * Gets the type of event.

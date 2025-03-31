@@ -11,7 +11,7 @@
 {
     "username": "johndoe",
     "email": "john@example.com",
-    "password": "securePassword123"
+    "password": "SecurePassword123!"
 }
 ```
 - **Response** (201 Created):
@@ -20,8 +20,8 @@
     "success": true,
     "message": "User registered successfully",
     "data": {
-        "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
-        "refreshToken": "eyJhbGciOiJIUzI1NiJ9...",
+        "accessToken": "eyJhbGciOiJIUzM4NCJ9...",
+        "refreshToken": "eyJhbGciOiJIUzM4NCJ9...",
         "user": {
             "id": "123e4567-e89b-12d3-a456-426614174000",
             "username": "johndoe",
@@ -39,7 +39,7 @@
 - **Request Body**:
 ```json
 {
-    "username": "johndoe",
+    "usernameOrEmail": "johndoe",
     "password": "securePassword123"
 }
 ```
@@ -49,8 +49,8 @@
     "success": true,
     "message": "Login successful",
     "data": {
-        "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
-        "refreshToken": "eyJhbGciOiJIUzI1NiJ9...",
+        "accessToken": "eyJhbGciOiJIUzM4NCJ9...",
+        "refreshToken": "eyJhbGciOiJIUzM4NCJ9...",
         "user": {
             "id": "123e4567-e89b-12d3-a456-426614174000",
             "username": "johndoe",
@@ -68,7 +68,7 @@
 - **Request Body**:
 ```json
 {
-    "refreshToken": "eyJhbGciOiJIUzI1NiJ9..."
+    "refreshToken": "eyJhbGciOiJIUzM4NCJ9..."
 }
 ```
 - **Response** (200 OK):
@@ -77,7 +77,7 @@
     "success": true,
     "message": "Token refreshed successfully",
     "data": {
-        "accessToken": "eyJhbGciOiJIUzI1NiJ9..."
+        "accessToken": "eyJhbGciOiJIUzM4NCJ9..."
     }
 }
 ```
@@ -234,6 +234,99 @@
         "username": "johndoe",
         "email": "john@example.com",
         "status": "ACTIVE"
+    }
+}
+```
+
+## Profile Endpoints
+
+### Get Current User's Profile
+- **URL**: `/api/v1/profiles/me`
+- **Method**: `GET`
+- **Description**: Get the current user's detailed profile information
+- **Headers**: `Authorization: Bearer <access_token>`
+- **Response** (200 OK):
+```json
+{
+    "success": true,
+    "message": "Profile retrieved successfully",
+    "data": {
+        "id": "123e4567-e89b-12d3-a456-426614174000",
+        "username": "johndoe",
+        "displayName": "John Doe",
+        "biography": "Software developer and photographer",
+        "imageUrl": "https://example.com/profiles/johndoe.jpg"
+    }
+}
+```
+
+### Update Current User's Profile
+- **URL**: `/api/v1/profiles/me`
+- **Method**: `PUT`
+- **Description**: Update the current user's profile information
+- **Headers**: `Authorization: Bearer <access_token>`
+- **Request Body**:
+```json
+{
+    "displayName": "John Doe",
+    "biography": "Software developer and photographer"
+}
+```
+- **Response** (200 OK):
+```json
+{
+    "success": true,
+    "message": "Profile updated successfully",
+    "data": {
+        "id": "123e4567-e89b-12d3-a456-426614174000",
+        "username": "johndoe",
+        "displayName": "John Doe",
+        "biography": "Software developer and photographer",
+        "imageUrl": "https://example.com/profiles/johndoe.jpg"
+    }
+}
+```
+
+### Upload Profile Image
+- **URL**: `/api/v1/profiles/me/image`
+- **Method**: `POST`
+- **Description**: Upload a new profile image for the current user
+- **Headers**: 
+  - `Authorization: Bearer <access_token>`
+  - `Content-Type: multipart/form-data`
+- **Request Body**:
+  - `file`: Image file (JPEG, PNG, etc.)
+- **Response** (200 OK):
+```json
+{
+    "success": true,
+    "message": "Profile image uploaded successfully",
+    "data": {
+        "id": "123e4567-e89b-12d3-a456-426614174000",
+        "username": "johndoe",
+        "displayName": "John Doe",
+        "biography": "Software developer and photographer",
+        "imageUrl": "https://example.com/profiles/johndoe.jpg"
+    }
+}
+```
+
+### Remove Profile Image
+- **URL**: `/api/v1/profiles/me/image`
+- **Method**: `DELETE`
+- **Description**: Remove the current user's profile image
+- **Headers**: `Authorization: Bearer <access_token>`
+- **Response** (200 OK):
+```json
+{
+    "success": true,
+    "message": "Profile image removed successfully",
+    "data": {
+        "id": "123e4567-e89b-12d3-a456-426614174000",
+        "username": "johndoe",
+        "displayName": "John Doe",
+        "biography": "Software developer and photographer",
+        "imageUrl": null
     }
 }
 ```

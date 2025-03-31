@@ -17,8 +17,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.integration.contracts.repositories.UserRepositoryContractTest;
 import com.lookbook.LookbookApplication;
-import com.lookbook.user.application.ports.repositories.UserRepository;
 import com.lookbook.user.domain.aggregates.User;
+import com.lookbook.user.domain.repositories.UserRepository;
 import com.lookbook.user.infrastructure.persistence.entities.JpaUser;
 import com.lookbook.user.infrastructure.persistence.repositories.UserJpaRepository;
 import com.lookbook.user.infrastructure.persistence.repositories.UserRepositoryAdapter;

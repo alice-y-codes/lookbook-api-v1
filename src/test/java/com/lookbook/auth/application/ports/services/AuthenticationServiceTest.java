@@ -25,10 +25,12 @@ import com.lookbook.auth.application.dtos.requests.RegisterUserRequest;
 import com.lookbook.auth.application.dtos.requests.TokenRefreshRequest;
 import com.lookbook.auth.application.dtos.responses.AuthenticationResponse;
 import com.lookbook.auth.application.dtos.responses.TokenRefreshResponse;
+import com.lookbook.auth.domain.services.JwtService;
 import com.lookbook.auth.infrastructure.adapters.services.AuthenticationServiceAdapter;
 import com.lookbook.base.domain.exceptions.ValidationException;
-import com.lookbook.user.application.ports.repositories.UserRepository;
+import com.lookbook.user.application.ports.services.ProfileService;
 import com.lookbook.user.domain.aggregates.User;
+import com.lookbook.user.domain.repositories.UserRepository;
 import com.lookbook.user.domain.valueobjects.Email;
 import com.lookbook.user.domain.valueobjects.Username;
 
@@ -42,6 +44,9 @@ class AuthenticationServiceTest {
     private JwtService jwtService;
 
     @Mock
+    private ProfileService profileService;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @Mock
@@ -53,7 +58,7 @@ class AuthenticationServiceTest {
     void setUp() {
         // The implementation class now exists, so we can initialize it
         authenticationService = new AuthenticationServiceAdapter(
-                userRepository, jwtService, passwordEncoder, authenticationManager);
+                userRepository, jwtService, passwordEncoder, authenticationManager, profileService);
     }
 
     @Test

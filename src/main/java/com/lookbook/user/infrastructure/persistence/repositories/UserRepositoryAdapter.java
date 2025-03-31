@@ -5,8 +5,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import com.lookbook.base.infrastructure.persistence.repositories.JpaEntityRepositoryAdapter;
-import com.lookbook.user.application.ports.repositories.UserRepository;
 import com.lookbook.user.domain.aggregates.User;
+import com.lookbook.user.domain.repositories.UserRepository;
 import com.lookbook.user.domain.valueobjects.Email;
 import com.lookbook.user.domain.valueobjects.Username;
 import com.lookbook.user.infrastructure.persistence.entities.JpaUser;

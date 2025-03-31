@@ -8,9 +8,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.lookbook.user.application.ports.repositories.UserRepository;
 import com.lookbook.user.domain.aggregates.User;
 import com.lookbook.user.domain.aggregates.UserStatus;
+import com.lookbook.user.domain.repositories.UserRepository;
 import com.lookbook.user.domain.valueobjects.Username;
 
 /**
@@ -31,16 +31,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(Username.of(username))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-        // Check if the user is active
-        if (user.getStatus() != UserStatus.ACTIVE) {
-            throw new UsernameNotFoundException("User is not active: " + username);
-        }
-
-        // Convert domain user to Spring Security UserDetails
+        // Convert domain user to Spring Security UserDetails with appropriate roles
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername().getValue(),
                 user.getHashedPassword(),
-                // For now, every user has a default "USER" role
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+                Collections.singletonList(new SimpleGrantedAuthority(
+                        user.getStatus() == UserStatus.ACTIVE ? "ROLE_USER" : "ROLE_PENDING_USER")));
     }
 }
